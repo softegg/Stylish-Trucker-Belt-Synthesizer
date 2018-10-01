@@ -1,0 +1,1022 @@
+EESchema Schematic File Version 4
+LIBS:Stylish-Belt-Synth - Full-cache
+EELAYER 26 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 3 3
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L WS2812B:WS2812B D0
+U 1 1 5B9634C8
+P 2800 1400
+F 0 "D0" H 3050 1867 50  0000 C CNN
+F 1 "WS2812B" H 3050 1776 50  0000 C CNN
+F 2 "WS2812B" H 2800 1400 50  0001 L BNN
+F 3 "None" H 2800 1400 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 1400 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 1400 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 1400 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 1400 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 1400 50  0001 L BNN "Field8"
+	1    2800 1400
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D1
+U 1 1 5B9635A7
+P 2800 2200
+F 0 "D1" H 3050 2667 50  0000 C CNN
+F 1 "WS2812B" H 3050 2576 50  0000 C CNN
+F 2 "WS2812B" H 2800 2200 50  0001 L BNN
+F 3 "None" H 2800 2200 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 2200 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 2200 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 2200 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 2200 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 2200 50  0001 L BNN "Field8"
+	1    2800 2200
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D2
+U 1 1 5B9636E2
+P 2800 3000
+F 0 "D2" H 3050 3467 50  0000 C CNN
+F 1 "WS2812B" H 3050 3376 50  0000 C CNN
+F 2 "WS2812B" H 2800 3000 50  0001 L BNN
+F 3 "None" H 2800 3000 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 3000 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 3000 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 3000 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 3000 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 3000 50  0001 L BNN "Field8"
+	1    2800 3000
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D3
+U 1 1 5B963797
+P 2800 3800
+F 0 "D3" H 3050 4267 50  0000 C CNN
+F 1 "WS2812B" H 3050 4176 50  0000 C CNN
+F 2 "WS2812B" H 2800 3800 50  0001 L BNN
+F 3 "None" H 2800 3800 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 3800 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 3800 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 3800 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 3800 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 3800 50  0001 L BNN "Field8"
+	1    2800 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D4
+U 1 1 5B963836
+P 2800 4600
+F 0 "D4" H 3050 5067 50  0000 C CNN
+F 1 "WS2812B" H 3050 4976 50  0000 C CNN
+F 2 "WS2812B" H 2800 4600 50  0001 L BNN
+F 3 "None" H 2800 4600 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 4600 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 4600 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 4600 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 4600 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 4600 50  0001 L BNN "Field8"
+	1    2800 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D5
+U 1 1 5B9638D5
+P 2800 5400
+F 0 "D5" H 3050 5867 50  0000 C CNN
+F 1 "WS2812B" H 3050 5776 50  0000 C CNN
+F 2 "WS2812B" H 2800 5400 50  0001 L BNN
+F 3 "None" H 2800 5400 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 5400 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 5400 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 5400 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 5400 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 5400 50  0001 L BNN "Field8"
+	1    2800 5400
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D6
+U 1 1 5B963962
+P 2800 6200
+F 0 "D6" H 3050 6667 50  0000 C CNN
+F 1 "WS2812B" H 3050 6576 50  0000 C CNN
+F 2 "WS2812B" H 2800 6200 50  0001 L BNN
+F 3 "None" H 2800 6200 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 6200 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 6200 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 6200 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 6200 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 6200 50  0001 L BNN "Field8"
+	1    2800 6200
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D7
+U 1 1 5B963A26
+P 2800 7000
+F 0 "D7" H 3050 7467 50  0000 C CNN
+F 1 "WS2812B" H 3050 7376 50  0000 C CNN
+F 2 "WS2812B" H 2800 7000 50  0001 L BNN
+F 3 "None" H 2800 7000 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 2800 7000 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 2800 7000 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 2800 7000 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 2800 7000 50  0001 L BNN "Field7"
+F 8 "Warning" H 2800 7000 50  0001 L BNN "Field8"
+	1    2800 7000
+	1    0    0    -1  
+$EndComp
+$Comp
+L WS2812B:WS2812B D8
+U 1 1 5B964192
+P 4550 6900
+F 0 "D8" H 4800 7325 50  0000 C BNN
+F 1 "WS2812B" H 4800 7276 50  0000 C CNN
+F 2 "WS2812B" H 4550 6900 50  0001 L BNN
+F 3 "None" H 4550 6900 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 6900 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 6900 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 6900 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 6900 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 6900 50  0001 L BNN "Field8"
+	1    4550 6900
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D9
+U 1 1 5B96419D
+P 4550 6100
+F 0 "D9" H 4800 6525 50  0000 C BNN
+F 1 "WS2812B" H 4800 6476 50  0000 C CNN
+F 2 "WS2812B" H 4550 6100 50  0001 L BNN
+F 3 "None" H 4550 6100 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 6100 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 6100 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 6100 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 6100 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 6100 50  0001 L BNN "Field8"
+	1    4550 6100
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D10
+U 1 1 5B9641A8
+P 4550 5300
+F 0 "D10" H 4800 5725 50  0000 C BNN
+F 1 "WS2812B" H 4800 5676 50  0000 C CNN
+F 2 "WS2812B" H 4550 5300 50  0001 L BNN
+F 3 "None" H 4550 5300 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 5300 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 5300 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 5300 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 5300 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 5300 50  0001 L BNN "Field8"
+	1    4550 5300
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D11
+U 1 1 5B9641B3
+P 4550 4500
+F 0 "D11" H 4800 4925 50  0000 C BNN
+F 1 "WS2812B" H 4800 4876 50  0000 C CNN
+F 2 "WS2812B" H 4550 4500 50  0001 L BNN
+F 3 "None" H 4550 4500 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 4500 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 4500 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 4500 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 4500 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 4500 50  0001 L BNN "Field8"
+	1    4550 4500
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D12
+U 1 1 5B9641BE
+P 4550 3700
+F 0 "D12" H 4800 4125 50  0000 C BNN
+F 1 "WS2812B" H 4800 4076 50  0000 C CNN
+F 2 "WS2812B" H 4550 3700 50  0001 L BNN
+F 3 "None" H 4550 3700 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 3700 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 3700 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 3700 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 3700 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 3700 50  0001 L BNN "Field8"
+	1    4550 3700
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D13
+U 1 1 5B9641C9
+P 4550 2900
+F 0 "D13" H 4800 3325 50  0000 C BNN
+F 1 "WS2812B" H 4800 3276 50  0000 C CNN
+F 2 "WS2812B" H 4550 2900 50  0001 L BNN
+F 3 "None" H 4550 2900 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 2900 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 2900 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 2900 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 2900 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 2900 50  0001 L BNN "Field8"
+	1    4550 2900
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D14
+U 1 1 5B9641D4
+P 4550 2100
+F 0 "D14" H 4800 2525 50  0000 C BNN
+F 1 "WS2812B" H 4800 2476 50  0000 C CNN
+F 2 "WS2812B" H 4550 2100 50  0001 L BNN
+F 3 "None" H 4550 2100 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 2100 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 2100 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 2100 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 2100 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 2100 50  0001 L BNN "Field8"
+	1    4550 2100
+	-1   0    0    1   
+$EndComp
+$Comp
+L WS2812B:WS2812B D15
+U 1 1 5B9641DF
+P 4550 1300
+F 0 "D15" H 4800 1725 50  0000 C BNN
+F 1 "WS2812B" H 4800 1676 50  0000 C CNN
+F 2 "WS2812B" H 4550 1300 50  0001 L BNN
+F 3 "None" H 4550 1300 50  0001 L BNN
+F 4 "Intelligent Control Led Integrated Light Source Pack Of 10" H 4550 1300 50  0001 L BNN "Field4"
+F 5 "Adafruit Industries" H 4550 1300 50  0001 L BNN "Field5"
+F 6 "5.84 USD" H 4550 1300 50  0001 L BNN "Field6"
+F 7 "WS2812B" H 4550 1300 50  0001 L BNN "Field7"
+F 8 "Warning" H 4550 1300 50  0001 L BNN "Field8"
+	1    4550 1300
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2600 1500 2600 1650
+Wire Wire Line
+	2600 1650 3500 1650
+Wire Wire Line
+	3500 1650 3500 2000
+Wire Wire Line
+	2600 2300 2600 2450
+Wire Wire Line
+	2600 2450 3500 2450
+Wire Wire Line
+	3500 2450 3500 2800
+Wire Wire Line
+	2600 3100 2600 3250
+Wire Wire Line
+	2600 3250 3500 3250
+Wire Wire Line
+	3500 3250 3500 3600
+Wire Wire Line
+	2600 3900 2600 4050
+Wire Wire Line
+	2600 4050 3500 4050
+Wire Wire Line
+	3500 4050 3500 4400
+Wire Wire Line
+	2600 4700 2600 4850
+Wire Wire Line
+	2600 4850 3500 4850
+Wire Wire Line
+	3500 4850 3500 5200
+Wire Wire Line
+	2600 5500 2600 5650
+Wire Wire Line
+	2600 5650 3500 5650
+Wire Wire Line
+	3500 5650 3500 6000
+Wire Wire Line
+	2600 6300 2600 6450
+Wire Wire Line
+	2600 6450 3500 6450
+Wire Wire Line
+	3500 6450 3500 6800
+Wire Wire Line
+	2600 6800 2550 6800
+Wire Wire Line
+	2550 6800 2550 6000
+Wire Wire Line
+	2550 6000 2600 6000
+Wire Wire Line
+	3500 7100 3550 7100
+Wire Wire Line
+	3550 7100 3550 6800
+Wire Wire Line
+	3550 6300 3500 6300
+Wire Wire Line
+	3500 5500 3550 5500
+Wire Wire Line
+	3550 5500 3550 6000
+Connection ~ 3550 6300
+Wire Wire Line
+	2550 6000 2550 5200
+Wire Wire Line
+	2550 5200 2600 5200
+Connection ~ 2550 6000
+Wire Wire Line
+	2550 5200 2550 4400
+Wire Wire Line
+	2550 4400 2600 4400
+Connection ~ 2550 5200
+Wire Wire Line
+	3550 5500 3550 5200
+Wire Wire Line
+	3550 4700 3500 4700
+Connection ~ 3550 5500
+Wire Wire Line
+	3550 4700 3550 4400
+Wire Wire Line
+	3550 3900 3500 3900
+Connection ~ 3550 4700
+Wire Wire Line
+	2550 4400 2550 3600
+Wire Wire Line
+	2550 3600 2600 3600
+Connection ~ 2550 4400
+Wire Wire Line
+	3550 3900 3550 3600
+Wire Wire Line
+	3550 3100 3500 3100
+Connection ~ 3550 3900
+Wire Wire Line
+	2550 3600 2550 2800
+Wire Wire Line
+	2550 2800 2600 2800
+Connection ~ 2550 3600
+Wire Wire Line
+	3550 3100 3550 2800
+Wire Wire Line
+	3550 2300 3500 2300
+Connection ~ 3550 3100
+Wire Wire Line
+	2550 2800 2550 2000
+Wire Wire Line
+	2550 2000 2600 2000
+Connection ~ 2550 2800
+Wire Wire Line
+	3550 2300 3550 2000
+Wire Wire Line
+	3550 1500 3500 1500
+Connection ~ 3550 2300
+Wire Wire Line
+	2550 2000 2550 1200
+Wire Wire Line
+	2550 1200 2600 1200
+Connection ~ 2550 2000
+Wire Wire Line
+	2600 7100 2600 7300
+Wire Wire Line
+	2600 7300 3800 7300
+Wire Wire Line
+	3800 7300 3800 7100
+Wire Wire Line
+	3800 7100 3850 7100
+Wire Wire Line
+	3850 6300 3850 6600
+Wire Wire Line
+	3850 6600 4750 6600
+Wire Wire Line
+	4750 6600 4750 6800
+Wire Wire Line
+	3850 5500 3850 5850
+Wire Wire Line
+	3850 5850 4750 5850
+Wire Wire Line
+	4750 5850 4750 6000
+Wire Wire Line
+	3900 6800 3850 6800
+Connection ~ 3550 6800
+Wire Wire Line
+	3550 6800 3550 6300
+Connection ~ 3850 6800
+Wire Wire Line
+	3850 6800 3550 6800
+Wire Wire Line
+	3850 6000 3550 6000
+Connection ~ 3550 6000
+Wire Wire Line
+	3550 6000 3550 6300
+Wire Wire Line
+	4750 7100 4850 7100
+Wire Wire Line
+	4850 7100 4850 6300
+Wire Wire Line
+	4850 6300 4750 6300
+Wire Wire Line
+	4750 5500 4850 5500
+Wire Wire Line
+	4850 5500 4850 6300
+Connection ~ 4850 6300
+Wire Wire Line
+	3850 4700 3850 5000
+Wire Wire Line
+	3850 5000 4750 5000
+Wire Wire Line
+	4750 5000 4750 5200
+Wire Wire Line
+	3850 5200 3550 5200
+Connection ~ 3550 5200
+Wire Wire Line
+	3550 5200 3550 4700
+Wire Wire Line
+	4750 4700 4850 4700
+Wire Wire Line
+	4850 4700 4850 5500
+Connection ~ 4850 5500
+Wire Wire Line
+	3850 4400 3550 4400
+Connection ~ 3550 4400
+Wire Wire Line
+	3550 4400 3550 3900
+Wire Wire Line
+	3850 3600 3550 3600
+Connection ~ 3550 3600
+Wire Wire Line
+	3550 3600 3550 3100
+Wire Wire Line
+	4750 4400 4750 4200
+Wire Wire Line
+	4750 4200 3850 4200
+Wire Wire Line
+	3850 4200 3850 3900
+Wire Wire Line
+	4850 4700 4850 3900
+Wire Wire Line
+	4850 3900 4750 3900
+Connection ~ 4850 4700
+Wire Wire Line
+	4750 3100 4850 3100
+Wire Wire Line
+	4850 3100 4850 3900
+Connection ~ 4850 3900
+Wire Wire Line
+	3850 3100 3850 3450
+Wire Wire Line
+	3850 3450 4750 3450
+Wire Wire Line
+	4750 3450 4750 3600
+Wire Wire Line
+	4850 3100 4850 2300
+Wire Wire Line
+	4850 2300 4750 2300
+Connection ~ 4850 3100
+Wire Wire Line
+	3850 2800 3550 2800
+Connection ~ 3550 2800
+Wire Wire Line
+	3550 2800 3550 2300
+Wire Wire Line
+	3850 2000 3550 2000
+Connection ~ 3550 2000
+Wire Wire Line
+	3550 2000 3550 1500
+Wire Wire Line
+	3850 1200 3700 1200
+Wire Wire Line
+	3700 1200 3700 1500
+Wire Wire Line
+	3700 1500 3550 1500
+Connection ~ 3550 1500
+Wire Wire Line
+	4750 2800 4750 2600
+Wire Wire Line
+	4750 2600 3850 2600
+Wire Wire Line
+	3850 2600 3850 2300
+Wire Wire Line
+	3850 1500 3850 1850
+Wire Wire Line
+	3850 1850 4750 1850
+Wire Wire Line
+	4750 1850 4750 2000
+Wire Wire Line
+	4850 2300 4850 1500
+Wire Wire Line
+	4850 1500 4750 1500
+Connection ~ 4850 2300
+Wire Wire Line
+	2550 6800 2550 7450
+Wire Wire Line
+	2550 7450 4850 7450
+Wire Wire Line
+	4850 7450 4850 7100
+Connection ~ 2550 6800
+Connection ~ 4850 7100
+$Comp
+L conn:Conn_01x04 J2
+U 1 1 5B9A091E
+P 3600 600
+F 0 "J2" V 3520 312 50  0000 R CNN
+F 1 "~" V 3475 312 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x04_Pitch2.54mm" H 3600 600 50  0001 C CNN
+F 3 "~" H 3600 600 50  0001 C CNN
+	1    3600 600 
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	3500 800  3500 1200
+Wire Wire Line
+	3600 800  3600 850 
+Wire Wire Line
+	3600 850  3200 850 
+Wire Wire Line
+	2550 850  2550 1200
+Connection ~ 2550 1200
+Wire Wire Line
+	3700 800  3700 850 
+Connection ~ 3700 1200
+Wire Wire Line
+	3800 800  3800 950 
+Wire Wire Line
+	3800 950  4750 950 
+Wire Wire Line
+	4750 950  4750 1200
+Text HLabel 3100 600  0    50   Input ~ 0
+DIN
+Text HLabel 3100 750  0    50   Input ~ 0
+5V
+Text HLabel 4500 600  2    50   Input ~ 0
+DOUT
+Text HLabel 4500 750  2    50   Input ~ 0
+GND
+Wire Wire Line
+	3500 800  3350 800 
+Wire Wire Line
+	3350 800  3350 600 
+Wire Wire Line
+	3350 600  3100 600 
+Connection ~ 3500 800 
+Wire Wire Line
+	3100 750  3200 750 
+Wire Wire Line
+	3200 750  3200 850 
+Connection ~ 3200 850 
+Wire Wire Line
+	3200 850  2550 850 
+Wire Wire Line
+	3700 850  4500 850 
+Wire Wire Line
+	4500 850  4500 750 
+Connection ~ 3700 850 
+Wire Wire Line
+	3700 850  3700 1200
+Wire Wire Line
+	3800 800  4400 800 
+Wire Wire Line
+	4400 800  4400 600 
+Wire Wire Line
+	4400 600  4500 600 
+Connection ~ 3800 800 
+$Comp
+L power:GND #PWR?
+U 1 1 5BAE46B2
+P 4950 850
+F 0 "#PWR?" H 4950 600 50  0001 C CNN
+F 1 "GND" H 4955 677 50  0000 C CNN
+F 2 "" H 4950 850 50  0001 C CNN
+F 3 "" H 4950 850 50  0001 C CNN
+	1    4950 850 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4500 850  4950 850 
+Connection ~ 4500 850 
+$Comp
+L device:C_Small CL0
+U 1 1 5BAED51C
+P 2350 1200
+F 0 "CL0" V 2121 1200 50  0000 C CNN
+F 1 "104" V 2212 1200 50  0000 C CNN
+F 2 "" H 2350 1200 50  0001 C CNN
+F 3 "~" H 2350 1200 50  0001 C CNN
+	1    2350 1200
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 1200 2450 1200
+Wire Wire Line
+	2250 1200 2050 1200
+$Comp
+L power:GND #PWR?
+U 1 1 5BAF64CE
+P 2050 1200
+F 0 "#PWR?" H 2050 950 50  0001 C CNN
+F 1 "GND" H 2055 1027 50  0000 C CNN
+F 2 "" H 2050 1200 50  0001 C CNN
+F 3 "" H 2050 1200 50  0001 C CNN
+	1    2050 1200
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL1
+U 1 1 5BAF6633
+P 2350 2000
+F 0 "CL1" V 2121 2000 50  0000 C CNN
+F 1 "104" V 2212 2000 50  0000 C CNN
+F 2 "" H 2350 2000 50  0001 C CNN
+F 3 "~" H 2350 2000 50  0001 C CNN
+	1    2350 2000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 2000 2450 2000
+Wire Wire Line
+	2250 2000 2050 2000
+$Comp
+L power:GND #PWR?
+U 1 1 5BAF663B
+P 2050 2000
+F 0 "#PWR?" H 2050 1750 50  0001 C CNN
+F 1 "GND" H 2055 1827 50  0000 C CNN
+F 2 "" H 2050 2000 50  0001 C CNN
+F 3 "" H 2050 2000 50  0001 C CNN
+	1    2050 2000
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL2
+U 1 1 5BAFB21B
+P 2350 2800
+F 0 "CL2" V 2121 2800 50  0000 C CNN
+F 1 "104" V 2212 2800 50  0000 C CNN
+F 2 "" H 2350 2800 50  0001 C CNN
+F 3 "~" H 2350 2800 50  0001 C CNN
+	1    2350 2800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 2800 2450 2800
+Wire Wire Line
+	2250 2800 2050 2800
+$Comp
+L power:GND #PWR?
+U 1 1 5BAFB224
+P 2050 2800
+F 0 "#PWR?" H 2050 2550 50  0001 C CNN
+F 1 "GND" H 2055 2627 50  0000 C CNN
+F 2 "" H 2050 2800 50  0001 C CNN
+F 3 "" H 2050 2800 50  0001 C CNN
+	1    2050 2800
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL3
+U 1 1 5BB001A1
+P 2350 3600
+F 0 "CL3" V 2121 3600 50  0000 C CNN
+F 1 "104" V 2212 3600 50  0000 C CNN
+F 2 "" H 2350 3600 50  0001 C CNN
+F 3 "~" H 2350 3600 50  0001 C CNN
+	1    2350 3600
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 3600 2450 3600
+Wire Wire Line
+	2250 3600 2050 3600
+$Comp
+L power:GND #PWR?
+U 1 1 5BB001AA
+P 2050 3600
+F 0 "#PWR?" H 2050 3350 50  0001 C CNN
+F 1 "GND" H 2055 3427 50  0000 C CNN
+F 2 "" H 2050 3600 50  0001 C CNN
+F 3 "" H 2050 3600 50  0001 C CNN
+	1    2050 3600
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL4
+U 1 1 5BB05342
+P 2350 4400
+F 0 "CL4" V 2121 4400 50  0000 C CNN
+F 1 "104" V 2212 4400 50  0000 C CNN
+F 2 "" H 2350 4400 50  0001 C CNN
+F 3 "~" H 2350 4400 50  0001 C CNN
+	1    2350 4400
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 4400 2450 4400
+Wire Wire Line
+	2250 4400 2050 4400
+$Comp
+L power:GND #PWR?
+U 1 1 5BB0534B
+P 2050 4400
+F 0 "#PWR?" H 2050 4150 50  0001 C CNN
+F 1 "GND" H 2055 4227 50  0000 C CNN
+F 2 "" H 2050 4400 50  0001 C CNN
+F 3 "" H 2050 4400 50  0001 C CNN
+	1    2050 4400
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL5
+U 1 1 5BB0A890
+P 2350 5200
+F 0 "CL5" V 2121 5200 50  0000 C CNN
+F 1 "104" V 2212 5200 50  0000 C CNN
+F 2 "" H 2350 5200 50  0001 C CNN
+F 3 "~" H 2350 5200 50  0001 C CNN
+	1    2350 5200
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 5200 2450 5200
+Wire Wire Line
+	2250 5200 2050 5200
+$Comp
+L power:GND #PWR?
+U 1 1 5BB0A899
+P 2050 5200
+F 0 "#PWR?" H 2050 4950 50  0001 C CNN
+F 1 "GND" H 2055 5027 50  0000 C CNN
+F 2 "" H 2050 5200 50  0001 C CNN
+F 3 "" H 2050 5200 50  0001 C CNN
+	1    2050 5200
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL6
+U 1 1 5BB100F9
+P 2350 6000
+F 0 "CL6" V 2121 6000 50  0000 C CNN
+F 1 "104" V 2212 6000 50  0000 C CNN
+F 2 "" H 2350 6000 50  0001 C CNN
+F 3 "~" H 2350 6000 50  0001 C CNN
+	1    2350 6000
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 6000 2450 6000
+Wire Wire Line
+	2250 6000 2050 6000
+$Comp
+L power:GND #PWR?
+U 1 1 5BB10102
+P 2050 6000
+F 0 "#PWR?" H 2050 5750 50  0001 C CNN
+F 1 "GND" H 2055 5827 50  0000 C CNN
+F 2 "" H 2050 6000 50  0001 C CNN
+F 3 "" H 2050 6000 50  0001 C CNN
+	1    2050 6000
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL7
+U 1 1 5BB15C06
+P 2350 6800
+F 0 "CL7" V 2121 6800 50  0000 C CNN
+F 1 "104" V 2212 6800 50  0000 C CNN
+F 2 "" H 2350 6800 50  0001 C CNN
+F 3 "~" H 2350 6800 50  0001 C CNN
+	1    2350 6800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	2550 6800 2450 6800
+Wire Wire Line
+	2250 6800 2050 6800
+$Comp
+L power:GND #PWR?
+U 1 1 5BB15C0F
+P 2050 6800
+F 0 "#PWR?" H 2050 6550 50  0001 C CNN
+F 1 "GND" H 2055 6627 50  0000 C CNN
+F 2 "" H 2050 6800 50  0001 C CNN
+F 3 "" H 2050 6800 50  0001 C CNN
+	1    2050 6800
+	1    0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL15
+U 1 1 5BB1BEF0
+P 5050 1500
+F 0 "CL15" V 4821 1500 50  0000 C CNN
+F 1 "104" V 4912 1500 50  0000 C CNN
+F 2 "" H 5050 1500 50  0001 C CNN
+F 3 "~" H 5050 1500 50  0001 C CNN
+	1    5050 1500
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 1500 4950 1500
+Wire Wire Line
+	5150 1500 5350 1500
+$Comp
+L power:GND #PWR?
+U 1 1 5BB1BEF9
+P 5350 1500
+F 0 "#PWR?" H 5350 1250 50  0001 C CNN
+F 1 "GND" H 5355 1327 50  0000 C CNN
+F 2 "" H 5350 1500 50  0001 C CNN
+F 3 "" H 5350 1500 50  0001 C CNN
+	1    5350 1500
+	-1   0    0    -1  
+$EndComp
+Connection ~ 4850 1500
+$Comp
+L device:C_Small CL14
+U 1 1 5BB2E0FB
+P 5050 2300
+F 0 "CL14" V 4821 2300 50  0000 C CNN
+F 1 "104" V 4912 2300 50  0000 C CNN
+F 2 "" H 5050 2300 50  0001 C CNN
+F 3 "~" H 5050 2300 50  0001 C CNN
+	1    5050 2300
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 2300 4950 2300
+Wire Wire Line
+	5150 2300 5350 2300
+$Comp
+L power:GND #PWR?
+U 1 1 5BB2E104
+P 5350 2300
+F 0 "#PWR?" H 5350 2050 50  0001 C CNN
+F 1 "GND" H 5355 2127 50  0000 C CNN
+F 2 "" H 5350 2300 50  0001 C CNN
+F 3 "" H 5350 2300 50  0001 C CNN
+	1    5350 2300
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL13
+U 1 1 5BB34406
+P 5050 3100
+F 0 "CL13" V 4821 3100 50  0000 C CNN
+F 1 "104" V 4912 3100 50  0000 C CNN
+F 2 "" H 5050 3100 50  0001 C CNN
+F 3 "~" H 5050 3100 50  0001 C CNN
+	1    5050 3100
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 3100 4950 3100
+Wire Wire Line
+	5150 3100 5350 3100
+$Comp
+L power:GND #PWR?
+U 1 1 5BB3440F
+P 5350 3100
+F 0 "#PWR?" H 5350 2850 50  0001 C CNN
+F 1 "GND" H 5355 2927 50  0000 C CNN
+F 2 "" H 5350 3100 50  0001 C CNN
+F 3 "" H 5350 3100 50  0001 C CNN
+	1    5350 3100
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL12
+U 1 1 5BB3A809
+P 5050 3900
+F 0 "CL12" V 4821 3900 50  0000 C CNN
+F 1 "104" V 4912 3900 50  0000 C CNN
+F 2 "" H 5050 3900 50  0001 C CNN
+F 3 "~" H 5050 3900 50  0001 C CNN
+	1    5050 3900
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 3900 4950 3900
+Wire Wire Line
+	5150 3900 5350 3900
+$Comp
+L power:GND #PWR?
+U 1 1 5BB3A812
+P 5350 3900
+F 0 "#PWR?" H 5350 3650 50  0001 C CNN
+F 1 "GND" H 5355 3727 50  0000 C CNN
+F 2 "" H 5350 3900 50  0001 C CNN
+F 3 "" H 5350 3900 50  0001 C CNN
+	1    5350 3900
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL11
+U 1 1 5BB40EFD
+P 5050 4700
+F 0 "CL11" V 4821 4700 50  0000 C CNN
+F 1 "104" V 4912 4700 50  0000 C CNN
+F 2 "" H 5050 4700 50  0001 C CNN
+F 3 "~" H 5050 4700 50  0001 C CNN
+	1    5050 4700
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 4700 4950 4700
+Wire Wire Line
+	5150 4700 5350 4700
+$Comp
+L power:GND #PWR?
+U 1 1 5BB40F06
+P 5350 4700
+F 0 "#PWR?" H 5350 4450 50  0001 C CNN
+F 1 "GND" H 5355 4527 50  0000 C CNN
+F 2 "" H 5350 4700 50  0001 C CNN
+F 3 "" H 5350 4700 50  0001 C CNN
+	1    5350 4700
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL10
+U 1 1 5BB47705
+P 5050 5500
+F 0 "CL10" V 4821 5500 50  0000 C CNN
+F 1 "104" V 4912 5500 50  0000 C CNN
+F 2 "" H 5050 5500 50  0001 C CNN
+F 3 "~" H 5050 5500 50  0001 C CNN
+	1    5050 5500
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 5500 4950 5500
+Wire Wire Line
+	5150 5500 5350 5500
+$Comp
+L power:GND #PWR?
+U 1 1 5BB4770E
+P 5350 5500
+F 0 "#PWR?" H 5350 5250 50  0001 C CNN
+F 1 "GND" H 5355 5327 50  0000 C CNN
+F 2 "" H 5350 5500 50  0001 C CNN
+F 3 "" H 5350 5500 50  0001 C CNN
+	1    5350 5500
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL9
+U 1 1 5BB4E123
+P 5050 6300
+F 0 "CL9" V 4821 6300 50  0000 C CNN
+F 1 "104" V 4912 6300 50  0000 C CNN
+F 2 "" H 5050 6300 50  0001 C CNN
+F 3 "~" H 5050 6300 50  0001 C CNN
+	1    5050 6300
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 6300 4950 6300
+Wire Wire Line
+	5150 6300 5350 6300
+$Comp
+L power:GND #PWR?
+U 1 1 5BB4E12C
+P 5350 6300
+F 0 "#PWR?" H 5350 6050 50  0001 C CNN
+F 1 "GND" H 5355 6127 50  0000 C CNN
+F 2 "" H 5350 6300 50  0001 C CNN
+F 3 "" H 5350 6300 50  0001 C CNN
+	1    5350 6300
+	-1   0    0    -1  
+$EndComp
+$Comp
+L device:C_Small CL8
+U 1 1 5BB54E5C
+P 5050 7100
+F 0 "CL8" V 4821 7100 50  0000 C CNN
+F 1 "104" V 4912 7100 50  0000 C CNN
+F 2 "" H 5050 7100 50  0001 C CNN
+F 3 "~" H 5050 7100 50  0001 C CNN
+	1    5050 7100
+	0    -1   1    0   
+$EndComp
+Wire Wire Line
+	4850 7100 4950 7100
+Wire Wire Line
+	5150 7100 5350 7100
+$Comp
+L power:GND #PWR?
+U 1 1 5BB54E65
+P 5350 7100
+F 0 "#PWR?" H 5350 6850 50  0001 C CNN
+F 1 "GND" H 5355 6927 50  0000 C CNN
+F 2 "" H 5350 7100 50  0001 C CNN
+F 3 "" H 5350 7100 50  0001 C CNN
+	1    5350 7100
+	-1   0    0    -1  
+$EndComp
+$EndSCHEMATC
