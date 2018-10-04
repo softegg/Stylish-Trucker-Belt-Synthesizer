@@ -5,8 +5,14 @@ Conceived as a piece of premium swag for the MAGwest convention, "Stylish!" inve
 Let's bring real music synthesis to the masses, stylishly!
 
 Project is based around the "Blue Pill" STM32F103C8T6 microcontroller board that can be obtained from AliExpress for less than $2.
+
 Code is written using Arduino IDE and STM32Duino.
+
 Audio output is via PWM (10k resistor + 1uF capacitor) using the Mozzi library. CC4.0 Share Alike Non-commercial license applies.
+
 LEDs are WS2812B, and the project PCB includes a header to use a standard 16 LED ring.
+
 Amplifier is XH-M125 based on the XPT8871, which you an also buy cheaply from AliExpress. Headers are included to simply mount this board on the unit if you don't want to solder all of those parts.
+
 Speaker is 40-50mm 0.5W 8 Ohm
+
