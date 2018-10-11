@@ -18,6 +18,45 @@ Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DAT
 //Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc1(SAW2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
 uint8_t gain=0;
+uint8_t patch_number=0;
+uint8_t tentative_patch_number=0;
+uint8_t parameter_number=0;
+
+// patch structure
+// 26 parameters packed into 
+struct patch_t
+{
+  uint64_t param0:5;
+  uint64_t param1:5;
+  uint64_t param2:5;
+  uint64_t param3:5;
+  uint64_t param4:5;
+  uint64_t param5:5;
+  uint64_t param6:5;
+  uint64_t param7:5;
+  uint64_t param8:5;
+  uint64_t param9:5;
+  uint64_t param10:5;
+  uint64_t param11:5;
+  uint64_t param12:4;
+  
+  uint64_t param13:5;
+  uint64_t param14:5;
+  uint64_t param15:5;
+  uint64_t param16:5;
+  uint64_t param17:5;
+  uint64_t param18:5;
+  uint64_t param19:5;
+  uint64_t param20:5;
+  uint64_t param21:5;
+  uint64_t param22:5;
+  uint64_t param23:5;
+  uint64_t param24:5;
+  uint64_t param26:4;
+  
+};
+
+
 
 enum eUI_States {
   S_PLAY,
@@ -45,6 +84,7 @@ uint8_t keyboard_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,
 #define NOT_PRESSED (0xFF)
 #define REQUIRED_STABLE_CYCLES (100)
 
+enum {PATCH_BUTTON=NUM_NOTES, WRITE_BUTTON, VALUE_BUTTON, MODE_BUTTON};
 
 typedef void ( *KeyCallback)(uint8_t key);
 
@@ -162,7 +202,13 @@ void ReceiveKeyDown(uint8_t key )
       }
       else
       {
-        
+        switch( key )
+        {
+          case PATCH_BUTTON:
+          case WRITE_BUTTON: 
+          case VALUE_BUTTON: 
+          case MODE_BUTTON:
+        }
       }
       break;
     case S_PATCH_SELECT:

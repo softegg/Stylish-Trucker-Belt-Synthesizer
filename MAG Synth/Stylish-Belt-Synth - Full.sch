@@ -17,34 +17,34 @@ $EndDescr
 $Comp
 L conn:Conn_01x01_Male J28
 U 1 1 5A85684E
-P 9075 3200
-F 0 "J28" H 8975 3200 50  0000 C CNN
-F 1 "PATCH SELECT" H 8900 3200 50  0000 R CNN
-F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 3200 50  0001 C CNN
-F 3 "" H 9075 3200 50  0001 C CNN
-	1    9075 3200
+P 9075 2675
+F 0 "J28" H 8975 2675 50  0000 C CNN
+F 1 "PATCH SELECT" H 8900 2675 50  0000 R CNN
+F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 2675 50  0001 C CNN
+F 3 "" H 9075 2675 50  0001 C CNN
+	1    9075 2675
 	-1   0    0    1   
 $EndComp
 $Comp
 L conn:Conn_01x01_Male J27
 U 1 1 5A856A96
-P 9075 3050
-F 0 "J27" H 8975 3050 50  0000 C CNN
-F 1 "PARAM SELECT" H 8900 3050 50  0000 R CNN
-F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 3050 50  0001 C CNN
-F 3 "" H 9075 3050 50  0001 C CNN
-	1    9075 3050
+P 9075 3025
+F 0 "J27" H 8975 3025 50  0000 C CNN
+F 1 "PARAM SELECT" H 8900 3025 50  0000 R CNN
+F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 3025 50  0001 C CNN
+F 3 "" H 9075 3025 50  0001 C CNN
+	1    9075 3025
 	-1   0    0    1   
 $EndComp
 $Comp
 L conn:Conn_01x01_Male J26
 U 1 1 5A856E54
-P 9075 2900
-F 0 "J26" H 8975 2900 50  0000 C CNN
-F 1 "WRITE PATCH" H 8900 2900 50  0000 R CNN
-F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 2900 50  0001 C CNN
-F 3 "" H 9075 2900 50  0001 C CNN
-	1    9075 2900
+P 9075 2850
+F 0 "J26" H 8975 2850 50  0000 C CNN
+F 1 "WRITE PATCH" H 8900 2850 50  0000 R CNN
+F 2 "SoftEggKiCAD:LargeRoundTouchPad" H 9075 2850 50  0001 C CNN
+F 3 "" H 9075 2850 50  0001 C CNN
+	1    9075 2850
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -106,7 +106,7 @@ $Comp
 L device:C_Small C1
 U 1 1 5A8BA68B
 P 8450 5875
-F 0 "C1" V 8550 5775 50  0000 L CNN
+F 0 "C1" V 8350 5850 50  0000 L CNN
 F 1 "1uF" H 8460 5795 50  0001 L CNN
 F 2 "Capacitors_SMD:C_0805_HandSoldering" H 8450 5875 50  0001 C CNN
 F 3 "" H 8450 5875 50  0001 C CNN
@@ -166,13 +166,13 @@ R/C Circuit to convert \nPWM pulses to waveform
 Wire Notes Line
 	10650 6200 7525 6200
 Wire Notes Line
-	8525 2800 9850 2800
+	7775 2600 9850 2600
 Wire Notes Line
-	9850 2800 9850 3625
+	9850 2600 9850 3625
 Wire Notes Line
-	9850 3625 8525 3625
+	9850 3625 7775 3625
 Wire Notes Line
-	8525 3625 8525 2800
+	7775 3625 7775 2600
 Text Notes 8875 3600 0    60   ~ 0
 PCB UI Pads\nfor Stylus
 Text Notes 4150 5200 0    60   ~ 0
@@ -270,14 +270,14 @@ Wire Wire Line
 	1650 5675 1800 5675
 Connection ~ 1800 5675
 $Comp
-L device:R R4
+L device:R R1B
 U 1 1 5B95BBFA
-P 8200 5950
-F 0 "R4" V 8280 5950 50  0000 C CNN
-F 1 "10k" V 8200 5950 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 8130 5950 50  0001 C CNN
-F 3 "" H 8200 5950 50  0001 C CNN
-	1    8200 5950
+P 8200 5975
+F 0 "R1B" V 8280 5975 50  0001 C CNN
+F 1 "10k" V 8200 5975 50  0000 C CNN
+F 2 "Resistors_ThroughHole:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 8130 5975 50  0001 C CNN
+F 3 "" H 8200 5975 50  0001 C CNN
+	1    8200 5975
 	0    1    1    0   
 $EndComp
 Wire Notes Line
@@ -285,10 +285,10 @@ Wire Notes Line
 Wire Notes Line
 	10650 5525 10650 6200
 $Comp
-L device:C_Small C2
+L device:C_Small C1B
 U 1 1 5B9899BC
 P 8600 5875
-F 0 "C2" V 8700 5775 50  0000 L CNN
+F 0 "C1B" V 8700 5775 50  0001 L CNN
 F 1 "1uF" H 8610 5795 50  0001 L CNN
 F 2 "Capacitors_ThroughHole:C_Disc_D5.0mm_W2.5mm_P5.00mm" H 8600 5875 50  0001 C CNN
 F 3 "" H 8600 5875 50  0001 C CNN
@@ -296,21 +296,21 @@ F 3 "" H 8600 5875 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L device:R R5
+L device:R R2B
 U 1 1 5B989A42
 P 9025 5925
-F 0 "R5" V 9105 5925 50  0000 C CNN
+F 0 "R2B" V 9105 5925 50  0001 C CNN
 F 1 "1k" V 9025 5925 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0207_L6.3mm_D2.5mm_P2.54mm_Vertical" V 8955 5925 50  0001 C CNN
+F 2 "Resistors_ThroughHole:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 8955 5925 50  0001 C CNN
 F 3 "" H 9025 5925 50  0001 C CNN
 	1    9025 5925
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8050 5950 8050 6075
+	8050 5975 8050 6075
 Connection ~ 8050 6075
 Wire Wire Line
-	8350 5950 8350 6075
+	8350 5975 8350 6075
 Connection ~ 8350 6075
 Wire Wire Line
 	8600 5975 8450 5975
@@ -386,9 +386,9 @@ Text Label 4200 2750 2    50   ~ 0
 F0
 Text Label 4200 2900 2    50   ~ 0
 F#0
-Text Label 4200 3050 2    50   ~ 0
+Text Label 6300 3350 0    50   ~ 0
 G0
-Text Label 4200 3200 2    50   ~ 0
+Text Label 6300 2600 0    50   ~ 0
 G#0
 Text Label 4200 3350 2    50   ~ 0
 A0
@@ -426,22 +426,18 @@ Text Label 6300 3650 0    50   ~ 0
 B1
 Text Label 6300 3500 0    50   ~ 0
 C2
-Text Label 6300 3350 0    50   ~ 0
-MODE
 Text Label 6300 2750 0    50   ~ 0
 PATCH
 Text Label 6300 3050 0    50   ~ 0
 PARAM
 Text Label 6300 2900 0    50   ~ 0
 WRITE
-Text Label 8875 2900 2    50   ~ 0
+Text Label 8025 2850 2    50   ~ 0
 WRITE
-Text Label 8875 3050 2    50   ~ 0
+Text Label 8025 3025 2    50   ~ 0
 PARAM
-Text Label 8875 3200 2    50   ~ 0
+Text Label 8025 2675 2    50   ~ 0
 PATCH
-Text Label 8875 3350 2    50   ~ 0
-MODE
 Text Label 6300 3200 0    50   ~ 0
 LED_DIN
 Text Label 7725 3925 2    50   ~ 0
@@ -550,4 +546,119 @@ Text Label 1400 1000 0    50   ~ 0
 C0
 Text Label 4200 2000 2    50   ~ 0
 C0
+$Comp
+L diode:1N4148 D1
+U 1 1 5BBC38EE
+P 8200 3200
+F 0 "D1" V 8250 3350 50  0000 R CNN
+F 1 "1N4148" V 8150 3550 50  0000 R CNN
+F 2 "Diodes_ThroughHole:D_DO-35_SOD27_P7.62mm_Horizontal" H 8200 3025 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8200 3200 50  0001 C CNN
+	1    8200 3200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8875 2850 8200 2850
+Wire Wire Line
+	8200 2850 8200 3050
+Wire Wire Line
+	8800 3350 8875 3350
+Connection ~ 8800 3350
+$Comp
+L diode:1N4148 D2
+U 1 1 5BBC37C5
+P 8800 3200
+F 0 "D2" V 8846 3121 50  0000 R CNN
+F 1 "1N4148" V 8755 3121 50  0000 R CNN
+F 2 "Diodes_ThroughHole:D_DO-35_SOD27_P7.62mm_Horizontal" H 8800 3025 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8800 3200 50  0001 C CNN
+	1    8800 3200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8875 3025 8800 3025
+Wire Wire Line
+	8800 3025 8800 3050
+Wire Wire Line
+	8800 3025 8675 3025
+Connection ~ 8800 3025
+Wire Wire Line
+	8200 2850 8025 2850
+Connection ~ 8200 2850
+Wire Wire Line
+	8875 2675 8025 2675
+$Comp
+L diode:1N4148 D1B
+U 1 1 5BBE4231
+P 8325 3200
+F 0 "D1B" V 8375 3350 50  0001 R CNN
+F 1 "1N4148" V 8275 3550 50  0001 R CNN
+F 2 "Diodes_SMD:D_0805" H 8325 3025 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8325 3200 50  0001 C CNN
+	1    8325 3200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8325 3050 8200 3050
+Connection ~ 8200 3050
+Wire Wire Line
+	8200 3350 8325 3350
+Connection ~ 8325 3350
+$Comp
+L diode:1N4148 D2B
+U 1 1 5BBE6FB8
+P 8675 3200
+F 0 "D2B" V 8721 3121 50  0001 R CNN
+F 1 "1N4148" V 8675 3121 50  0001 R CNN
+F 2 "Diodes_SMD:D_0805" H 8675 3025 50  0001 C CNN
+F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8675 3200 50  0001 C CNN
+	1    8675 3200
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	8675 3050 8675 3025
+Connection ~ 8675 3025
+Wire Wire Line
+	8675 3025 8025 3025
+Wire Wire Line
+	8675 3350 8800 3350
+Connection ~ 8675 3350
+Wire Wire Line
+	8325 3350 8675 3350
+$Comp
+L conn:USB_B J0
+U 1 1 5BBEB964
+P 2725 3150
+F 0 "J0" H 2495 3048 50  0000 R CNN
+F 1 "USB_B" H 2495 3139 50  0000 R CNN
+F 2 "Connectors:USB_B" H 2875 3100 50  0001 C CNN
+F 3 "" H 2875 3100 50  0001 C CNN
+	1    2725 3150
+	1    0    0    1   
+$EndComp
+Wire Wire Line
+	4200 3050 3025 3050
+Wire Wire Line
+	4200 3200 3025 3200
+Wire Wire Line
+	3025 3200 3025 3150
+Wire Wire Line
+	2725 2750 3275 2750
+$Comp
+L power:GND #PWR?
+U 1 1 5BBEFFF4
+P 3275 2750
+F 0 "#PWR?" H 3275 2500 50  0001 C CNN
+F 1 "GND" H 3280 2577 50  0000 C CNN
+F 2 "" H 3275 2750 50  0001 C CNN
+F 3 "" H 3275 2750 50  0001 C CNN
+	1    3275 2750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3025 3350 3250 3350
+Wire Wire Line
+	3250 3350 3250 4550
+Wire Wire Line
+	3250 4550 4200 4550
 $EndSCHEMATC
