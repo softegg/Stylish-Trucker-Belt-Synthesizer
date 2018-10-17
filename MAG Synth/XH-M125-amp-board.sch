@@ -1,6 +1,6 @@
 EESchema Schematic File Version 4
 LIBS:Stylish-Belt-Synth - Full-cache
-EELAYER 26 0
+EELAYER 28 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -9,8 +9,8 @@ Title "MX-M125 XPT8871 Amplifier Board"
 Date "2018-03-10"
 Rev "1"
 Comp "SoftEgg"
-Comment1 "V1.0 T.B. Trzepacz 2018/2/19"
-Comment2 ""
+Comment1 "V0.1 T.B. Trzepacz 2018/2/19"
+Comment2 "V0.2 T.B. Trzepacz 2018/10/14"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -85,7 +85,7 @@ U 1 1 5A8BD59A
 P 5625 3675
 F 0 "CA3" V 5725 3625 50  0000 L CNN
 F 1 "1uF" V 5525 3625 50  0000 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 5625 3675 50  0001 C CNN
+F 2 "Capacitors_ThroughHole:CP_Radial_Tantal_D4.5mm_P2.50mm" H 5625 3675 50  0001 C CNN
 F 3 "" H 5625 3675 50  0001 C CNN
 	1    5625 3675
 	0    1    1    0   
@@ -124,10 +124,10 @@ Wire Wire Line
 Wire Wire Line
 	5525 4200 5525 4275
 $Comp
-L conn:Conn_01x06 J1
+L conn:Conn_01x06 JA1
 U 1 1 5AA56D62
 P 3575 3675
-F 0 "J1" H 3495 4092 50  0000 C CNN
+F 0 "JA1" H 3495 4092 50  0000 C CNN
 F 1 "Conn_01x06" H 3495 4001 50  0000 C CNN
 F 2 "Pin_Headers:Pin_Header_Straight_1x06_Pitch2.54mm" H 3575 3675 50  0001 C CNN
 F 3 "~" H 3575 3675 50  0001 C CNN

@@ -1,16 +1,16 @@
 EESchema Schematic File Version 4
 LIBS:Stylish-Belt-Synth - Full-cache
-EELAYER 26 0
+EELAYER 28 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 3
 Title "\"Stylish\" Trucker Belt Stylus Synthesizer"
-Date "2018-02-19"
-Rev "0.1"
+Date "2018-10-14"
+Rev "0.2"
 Comp "SoftEgg"
 Comment1 "V0.1 T.B. Trzepacz 2018/2/19"
-Comment2 ""
+Comment2 "V0.2 T.B. Trzepacz 2018/10/14"
 Comment3 ""
 Comment4 ""
 $EndDescr
@@ -53,7 +53,7 @@ U 1 1 5A857583
 P 5250 3400
 F 0 "U1" H 5250 4750 60  0000 C CNN
 F 1 "stm32f103c8t6-module-china" V 5250 3400 60  0000 C CNN
-F 2 "myelin-kicad:stm32f103c8t6-module-china" H 5250 1700 60  0001 C CNN
+F 2 "SoftEggKiCAD:stm32f103c8t6-module-china-smd" H 5250 1700 60  0001 C CNN
 F 3 "" H 4850 3650 60  0000 C CNN
 	1    5250 3400
 	1    0    0    -1  
@@ -97,7 +97,7 @@ U 1 1 5A8BA562
 P 8850 5925
 F 0 "R2" V 8930 5925 50  0000 C CNN
 F 1 "1k" V 8850 5925 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 8780 5925 50  0001 C CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8780 5925 50  0001 C CNN
 F 3 "" H 8850 5925 50  0001 C CNN
 	1    8850 5925
 	1    0    0    -1  
@@ -108,7 +108,7 @@ U 1 1 5A8BA68B
 P 8450 5875
 F 0 "C1" V 8350 5850 50  0000 L CNN
 F 1 "1uF" H 8460 5795 50  0001 L CNN
-F 2 "Capacitors_SMD:C_0805_HandSoldering" H 8450 5875 50  0001 C CNN
+F 2 "SoftEggKiCAD:C_Disc_D5.0mm_W2.5mm_P5.00mm+SMD" H 8450 5875 50  0001 C CNN
 F 3 "" H 8450 5875 50  0001 C CNN
 	1    8450 5875
 	1    0    0    -1  
@@ -119,7 +119,7 @@ U 1 1 5A8BA742
 P 8200 6075
 F 0 "R1" V 8280 6075 50  0000 C CNN
 F 1 "10k" V 8200 6075 50  0000 C CNN
-F 2 "Resistors_SMD:R_0805_HandSoldering" V 8130 6075 50  0001 C CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8130 6075 50  0001 C CNN
 F 3 "" H 8200 6075 50  0001 C CNN
 	1    8200 6075
 	0    1    1    0   
@@ -134,12 +134,12 @@ Connection ~ 8450 6075
 $Comp
 L device:Speaker LS1
 U 1 1 5A8BCD0B
-P 9950 4900
-F 0 "LS1" H 10000 5125 50  0000 R CNN
-F 1 "Speaker" H 10000 5050 50  0000 R CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x02_Pitch1.27mm" H 9950 4700 50  0001 C CNN
-F 3 "" H 9940 4850 50  0001 C CNN
-	1    9950 4900
+P 10775 4875
+F 0 "LS1" H 10825 4675 50  0000 R CNN
+F 1 "Speaker" H 10900 5075 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 10775 4675 50  0001 C CNN
+F 3 "" H 10765 4825 50  0001 C CNN
+	1    10775 4875
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -154,7 +154,7 @@ U 1 1 5A8C1199
 P 2175 5675
 F 0 "SW1" H 2050 5750 50  0000 C CNN
 F 1 "Power" H 2175 5575 50  0000 C CNN
-F 2 "Buttons_Switches_SMD:SW_SPST_EVQP0" H 2175 5675 50  0001 C CNN
+F 2 "SVTmaker:MSS22D18" H 2175 5675 50  0001 C CNN
 F 3 "" H 2175 5675 50  0001 C CNN
 	1    2175 5675
 	1    0    0    -1  
@@ -203,8 +203,6 @@ F5 "IN+" I L 8550 5100 50
 F6 "OUT-" I R 9150 5000 50 
 F7 "OUT+" I R 9150 4900 50 
 $EndSheet
-Wire Wire Line
-	9750 4900 9150 4900
 Wire Wire Line
 	9150 5000 9750 5000
 Wire Wire Line
@@ -269,61 +267,10 @@ Wire Wire Line
 Wire Wire Line
 	1650 5675 1800 5675
 Connection ~ 1800 5675
-$Comp
-L device:R R1B
-U 1 1 5B95BBFA
-P 8200 5975
-F 0 "R1B" V 8280 5975 50  0001 C CNN
-F 1 "10k" V 8200 5975 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal" V 8130 5975 50  0001 C CNN
-F 3 "" H 8200 5975 50  0001 C CNN
-	1    8200 5975
-	0    1    1    0   
-$EndComp
 Wire Notes Line
 	7525 5525 10650 5525
 Wire Notes Line
 	10650 5525 10650 6200
-$Comp
-L device:C_Small C1B
-U 1 1 5B9899BC
-P 8600 5875
-F 0 "C1B" V 8700 5775 50  0001 L CNN
-F 1 "1uF" H 8610 5795 50  0001 L CNN
-F 2 "Capacitors_ThroughHole:C_Disc_D5.0mm_W2.5mm_P5.00mm" H 8600 5875 50  0001 C CNN
-F 3 "" H 8600 5875 50  0001 C CNN
-	1    8600 5875
-	1    0    0    -1  
-$EndComp
-$Comp
-L device:R R2B
-U 1 1 5B989A42
-P 9025 5925
-F 0 "R2B" V 9105 5925 50  0001 C CNN
-F 1 "1k" V 9025 5925 50  0000 C CNN
-F 2 "Resistors_ThroughHole:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 8955 5925 50  0001 C CNN
-F 3 "" H 9025 5925 50  0001 C CNN
-	1    9025 5925
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8050 5975 8050 6075
-Connection ~ 8050 6075
-Wire Wire Line
-	8350 5975 8350 6075
-Connection ~ 8350 6075
-Wire Wire Line
-	8600 5975 8450 5975
-Connection ~ 8450 5975
-Wire Wire Line
-	8600 5775 8450 5775
-Connection ~ 8450 5775
-Wire Wire Line
-	9025 5775 8850 5775
-Connection ~ 8850 5775
-Wire Wire Line
-	9025 6075 8850 6075
-Connection ~ 8850 6075
 Text Notes 9150 5825 0    50   ~ 0
 Doubled parts for thru-hole vs SMD
 Text Notes 9150 5900 0    50   ~ 0
@@ -552,7 +499,7 @@ U 1 1 5BBC38EE
 P 8200 3200
 F 0 "D1" V 8250 3350 50  0000 R CNN
 F 1 "1N4148" V 8150 3550 50  0000 R CNN
-F 2 "Diodes_ThroughHole:D_DO-35_SOD27_P7.62mm_Horizontal" H 8200 3025 50  0001 C CNN
+F 2 "SoftEggKiCAD:D_DO-35_SOD27_P7.62mm_Horizontal+SMD" H 8200 3025 50  0001 C CNN
 F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8200 3200 50  0001 C CNN
 	1    8200 3200
 	0    -1   -1   0   
@@ -562,55 +509,17 @@ Wire Wire Line
 Wire Wire Line
 	8200 2850 8200 3050
 Wire Wire Line
-	8800 3350 8875 3350
-Connection ~ 8800 3350
-$Comp
-L diode:1N4148 D2
-U 1 1 5BBC37C5
-P 8800 3200
-F 0 "D2" V 8846 3121 50  0000 R CNN
-F 1 "1N4148" V 8755 3121 50  0000 R CNN
-F 2 "Diodes_ThroughHole:D_DO-35_SOD27_P7.62mm_Horizontal" H 8800 3025 50  0001 C CNN
-F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8800 3200 50  0001 C CNN
-	1    8800 3200
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	8875 3025 8800 3025
-Wire Wire Line
-	8800 3025 8800 3050
-Wire Wire Line
-	8800 3025 8675 3025
-Connection ~ 8800 3025
-Wire Wire Line
 	8200 2850 8025 2850
 Connection ~ 8200 2850
 Wire Wire Line
 	8875 2675 8025 2675
 $Comp
-L diode:1N4148 D1B
-U 1 1 5BBE4231
-P 8325 3200
-F 0 "D1B" V 8375 3350 50  0001 R CNN
-F 1 "1N4148" V 8275 3550 50  0001 R CNN
-F 2 "Diodes_SMD:D_0805" H 8325 3025 50  0001 C CNN
-F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8325 3200 50  0001 C CNN
-	1    8325 3200
-	0    -1   -1   0   
-$EndComp
-Wire Wire Line
-	8325 3050 8200 3050
-Connection ~ 8200 3050
-Wire Wire Line
-	8200 3350 8325 3350
-Connection ~ 8325 3350
-$Comp
-L diode:1N4148 D2B
+L diode:1N4148 BD2
 U 1 1 5BBE6FB8
 P 8675 3200
-F 0 "D2B" V 8721 3121 50  0001 R CNN
+F 0 "BD2" V 8721 3121 50  0001 R CNN
 F 1 "1N4148" V 8675 3121 50  0001 R CNN
-F 2 "Diodes_SMD:D_0805" H 8675 3025 50  0001 C CNN
+F 2 "SoftEggKiCAD:D_DO-35_SOD27_P7.62mm_Horizontal+SMD" H 8675 3025 50  0001 C CNN
 F 3 "http://www.nxp.com/documents/data_sheet/1N4148_1N4448.pdf" H 8675 3200 50  0001 C CNN
 	1    8675 3200
 	0    -1   -1   0   
@@ -620,11 +529,7 @@ Wire Wire Line
 Connection ~ 8675 3025
 Wire Wire Line
 	8675 3025 8025 3025
-Wire Wire Line
-	8675 3350 8800 3350
 Connection ~ 8675 3350
-Wire Wire Line
-	8325 3350 8675 3350
 $Comp
 L conn:USB_B J0
 U 1 1 5BBEB964
@@ -645,10 +550,10 @@ Wire Wire Line
 Wire Wire Line
 	2725 2750 3275 2750
 $Comp
-L power:GND #PWR?
+L power:GND #PWR0107
 U 1 1 5BBEFFF4
 P 3275 2750
-F 0 "#PWR?" H 3275 2500 50  0001 C CNN
+F 0 "#PWR0107" H 3275 2500 50  0001 C CNN
 F 1 "GND" H 3280 2577 50  0000 C CNN
 F 2 "" H 3275 2750 50  0001 C CNN
 F 3 "" H 3275 2750 50  0001 C CNN
@@ -661,4 +566,52 @@ Wire Wire Line
 	3250 3350 3250 4550
 Wire Wire Line
 	3250 4550 4200 4550
+$Comp
+L conn:Audio-Jack-3_2Switches J1
+U 1 1 5BC093A8
+P 10100 4900
+F 0 "J1" H 9813 4970 50  0000 R CNN
+F 1 "Audio-Jack-3_2Switches" H 10400 4625 50  0000 R CNN
+F 2 "Connectors:PJ320E_3.5mm_Jack" H 10350 5000 50  0001 C CNN
+F 3 "~" H 10350 5000 50  0001 C CNN
+	1    10100 4900
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	9750 5000 9750 5100
+Wire Wire Line
+	9750 5100 10300 5100
+Wire Wire Line
+	9150 4900 9875 4900
+Wire Wire Line
+	9900 4800 9875 4800
+Wire Wire Line
+	9875 4800 9875 4900
+Connection ~ 9875 4900
+Wire Wire Line
+	9875 4900 9900 4900
+Wire Wire Line
+	10300 5100 10575 5100
+Wire Wire Line
+	10575 5100 10575 4975
+Connection ~ 10300 5100
+Wire Wire Line
+	9900 4700 9900 4550
+Wire Wire Line
+	9900 4550 10575 4550
+Wire Wire Line
+	10575 4550 10575 4875
+Wire Wire Line
+	9900 5000 9800 5000
+Wire Wire Line
+	9800 5000 9800 4550
+Wire Wire Line
+	9800 4550 9900 4550
+Connection ~ 9900 4550
+Wire Wire Line
+	8200 3350 8675 3350
+Wire Wire Line
+	8675 3350 8875 3350
+Wire Wire Line
+	8675 3025 8875 3025
 $EndSCHEMATC
