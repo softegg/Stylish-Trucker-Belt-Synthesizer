@@ -81,17 +81,6 @@ F 3 "" H 7900 1400 50  0001 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L device:Battery BT1
-U 1 1 5A85ADEB
-P 1800 5875
-F 0 "BT1" H 1900 5925 50  0000 L CNN
-F 1 "4 x 1.5V" H 1900 5800 50  0000 L CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x02_Pitch2.54mm" V 1800 5935 50  0001 C CNN
-F 3 "" V 1800 5935 50  0001 C CNN
-	1    1800 5875
-	1    0    0    -1  
-$EndComp
-$Comp
 L device:R R2
 U 1 1 5A8BA562
 P 8850 5925
@@ -149,18 +138,18 @@ Wire Wire Line
 Wire Wire Line
 	8850 5775 8850 5625
 $Comp
-L switches:SW_SPST SW1
+L SoftEggKicadLib:SW_DPDT SW1
 U 1 1 5A8C1199
-P 2175 5675
-F 0 "SW1" H 2050 5750 50  0000 C CNN
-F 1 "Power" H 2175 5575 50  0000 C CNN
-F 2 "SVTmaker:MSS22D18" H 2175 5675 50  0001 C CNN
-F 3 "" H 2175 5675 50  0001 C CNN
-	1    2175 5675
+P 2475 5875
+F 0 "SW1" H 2350 5950 50  0000 C CNN
+F 1 "Power" H 2475 5500 50  0000 C CNN
+F 2 "SoftEggKiCAD:MSS22D18+THT" H 2475 5875 50  0001 C CNN
+F 3 "" H 2475 5875 50  0001 C CNN
+	1    2475 5875
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2550 5675 2375 5675
+	2850 5575 2675 5575
 Text Notes 9150 6125 0    60   ~ 0
 R/C Circuit to convert \nPWM pulses to waveform
 Wire Notes Line
@@ -179,8 +168,6 @@ Text Notes 4150 5200 0    60   ~ 0
 Battery clip glued\n to back of board
 Text Notes 4825 1825 0    60   ~ 0
 STM32F103C8T6\n"Blue Pill" board
-Wire Wire Line
-	1800 5675 1975 5675
 Wire Wire Line
 	8450 6075 8850 6075
 Wire Wire Line
@@ -250,21 +237,14 @@ Wire Wire Line
 $Comp
 L conn:Conn_01x02 BT2
 U 1 1 5B9344BC
-P 1450 5825
-F 0 "BT2" H 1370 5592 50  0000 C CNN
-F 1 "Conn_01x02" H 1370 5591 50  0001 C CNN
-F 2 "Pin_Headers:Pin_Header_Angled_1x02_Pitch2.54mm" H 1450 5825 50  0001 C CNN
-F 3 "~" H 1450 5825 50  0001 C CNN
-	1    1450 5825
-	-1   0    0    -1  
+P 1275 5475
+F 0 "BT2" H 1195 5242 50  0000 C CNN
+F 1 "Conn_01x02" H 1195 5241 50  0001 C CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" H 1275 5475 50  0001 C CNN
+F 3 "~" H 1275 5475 50  0001 C CNN
+	1    1275 5475
+	0    1    -1   0   
 $EndComp
-Wire Wire Line
-	1650 6075 1800 6075
-Wire Wire Line
-	1650 5825 1650 5675
-Wire Wire Line
-	1650 5675 1800 5675
-Connection ~ 1800 5675
 Wire Notes Line
 	7525 5525 10650 5525
 Wire Notes Line
@@ -391,7 +371,7 @@ Text Label 7725 4025 2    50   ~ 0
 +5V
 Text Label 9200 5100 0    50   ~ 0
 +5V
-Text Label 3050 5675 0    50   ~ 0
+Text Label 3350 5575 0    50   ~ 0
 +5V
 Text Label 4200 4550 2    50   ~ 0
 +5V
@@ -409,18 +389,15 @@ $EndComp
 Wire Wire Line
 	4200 4700 3950 4700
 Connection ~ 4200 4700
-Wire Wire Line
-	1800 6075 3075 6075
-Connection ~ 1800 6075
 $Comp
 L power:GND #PWR0102
 U 1 1 5BACA4F7
-P 3075 6075
-F 0 "#PWR0102" H 3075 5825 50  0001 C CNN
-F 1 "GND" H 3080 5902 50  0000 C CNN
-F 2 "" H 3075 6075 50  0001 C CNN
-F 3 "" H 3075 6075 50  0001 C CNN
-	1    3075 6075
+P 3350 6100
+F 0 "#PWR0102" H 3350 5850 50  0001 C CNN
+F 1 "GND" H 3355 5927 50  0000 C CNN
+F 2 "" H 3350 6100 50  0001 C CNN
+F 3 "" H 3350 6100 50  0001 C CNN
+	1    3350 6100
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -613,16 +590,16 @@ Wire Wire Line
 $Comp
 L device:D_Schottky D3
 U 1 1 5BC7018F
-P 2700 5675
-F 0 "D3" H 2700 5459 50  0000 C CNN
-F 1 "1N5822" H 2700 5550 50  0000 C CNN
-F 2 "SoftEggKiCAD:D_DO-35_SOD27_P7.62mm_Horizontal+SMD" H 2700 5675 50  0001 C CNN
-F 3 "~" H 2700 5675 50  0001 C CNN
-	1    2700 5675
+P 3000 5575
+F 0 "D3" H 3000 5359 50  0000 C CNN
+F 1 "1N5822" H 3000 5450 50  0000 C CNN
+F 2 "SoftEggKiCAD:D_DO-35_SOD27_P7.62mm_Horizontal+SMD" H 3000 5575 50  0001 C CNN
+F 3 "~" H 3000 5575 50  0001 C CNN
+	1    3000 5575
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	2850 5675 3050 5675
+	3150 5575 3350 5575
 $Comp
 L device:D_Schottky D4
 U 1 1 5BC81B93
@@ -639,5 +616,26 @@ Wire Wire Line
 Wire Wire Line
 	3775 4550 4200 4550
 Wire Wire Line
-	1650 5925 1650 6075
+	2675 5925 3350 5925
+Wire Wire Line
+	3350 5925 3350 6100
+Wire Wire Line
+	1800 5675 2275 5675
+$Comp
+L device:Battery BT1
+U 1 1 5A85ADEB
+P 1600 5675
+F 0 "BT1" V 1475 5600 50  0000 L CNN
+F 1 "4 x 1.5V" V 1725 5525 50  0000 L CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x02_Pitch2.54mm" V 1600 5735 50  0001 C CNN
+F 3 "" V 1600 5735 50  0001 C CNN
+	1    1600 5675
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1400 5675 1275 5675
+Wire Wire Line
+	2275 6025 1175 6025
+Wire Wire Line
+	1175 6025 1175 5675
 $EndSCHEMATC
