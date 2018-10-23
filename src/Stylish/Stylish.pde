@@ -56,15 +56,42 @@ struct patch_t
   
 };
 
-
+//order of operations:
+// tap button for thing to change - ring will be a solid color, different for each button
+// when released, ring will flash that color, waiting for input value
+// keyboard is used to select value, and will light up LED corresponding to value while held.
+// when released, ring will flash faster than before, keyboard can still be used to change value
+// when original button is pressed again, value is kept, ring flashes once and fades out
+// if another button is pushed, change is aborted and ring flashes red, value reverts.
+// for parameters, it is a two stage process, parameter number, then parameter value.
+// after parameter number is selected, further presses will change parameter value
 
 enum eUI_States {
   S_PLAY,
-  S_PATCH_SELECT,
-  S_PATCH_WRITE,
-  S_PARAMETER_SELECT,
-  S_PARAMETER_VALUE_CHANGE,
-  S_MODE_CHANGE,
+  S_PATCH_SELECT_DOWN,
+  S_PATCH_SELECT_WAIT_FOR_PATCH,
+  S_PATCH_SELECT_PLAYING_PATCH_AUDITION,
+  S_PATCH_SELECT_DONE_SELECTING_DOWN,
+  S_PATCH_SELECT_ABORT_DOWN,
+  S_PATCH_WRITE_DOWN,
+  S_PATCH_WRITE_WAIT_FOR_PATCH,
+  S_PATCH_WRITE_PLAYING_PATCH_AUDITION,
+  S_PATCH_WRITE_DONE_SELECTING_DOWN,
+  S_PATCH_WRITE_ABORT_DOWN,
+  S_PARAMETER_SELECT_DOWN,
+  S_PARAMETER_SELECT_WAIT_FOR_PARAMETER_NUMBER,
+  S_PARAMETER_SELECT_PARAMETER_NUMBER_DOWN,
+  S_PARAMETER_VALUE_CHANGE_WAIT_FOR_VALUE,
+  S_PARAMETER_VALUE_CHANGE_VALUE_DOWN_AUDITION,
+  S_PARAMETER_VALUE_CHANGE_KEEP_DOWN,
+  S_PARAMETER_CALUE_CHANGE_ABORT_DOWN,
+  S_MODE_CHANGE_DOWN,
+  S_MODE_CHANGE_WAIT_FOR_MODE_NUMBER,
+  S_MODE_CHANGE_MODE_NUMBER_DOWN,
+  S_MODE_CHANGE_MODE_VALUE_WAIT,
+  S_MODE_CHANGE_MODE_VALUE_DOWN,
+  S_MODE_CHANGE_MODE_VALUE_KEEP_DOWN,
+  S_MODE_CHANGE_MODE_VALUE_ABORT_DOWN,
   S_MODE_VALUE,
   S_NUM_STATES
 };
