@@ -19,8 +19,9 @@ Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DAT
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
 uint8_t gain=0;
 uint8_t patch_number=0;
-uint8_t tentative_patch_number=0;
+uint8_t last_patch_number=0;
 uint8_t parameter_number=0;
+bool patch_number_changed = false;
 
 // patch structure
 // 26 parameters packed into 
@@ -113,6 +114,9 @@ uint8_t keyboard_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,
 
 enum {PATCH_BUTTON=NUM_NOTES, WRITE_BUTTON, VALUE_BUTTON, MODE_BUTTON};
 
+#define MODE_BUTTON_HACK_MASK ((1<<WDITE_BUTTON)|(1<<VALUE_BUTTON))
+#define MODE_BUTTON_MASK (1<<MODE_BUTTON)
+
 typedef void ( *KeyCallback)(uint8_t key);
 
 uint32_t raw_key_bits=0;
@@ -120,6 +124,7 @@ uint32_t key_bits=0;
 uint8_t key_down = NOT_PRESSED;
 uint8_t last_key_down = NOT_PRESSED;
 uint8_t raw_key_down = NOT_PRESSED;
+uint8_t last_key_played = NOT_PRESSED;
 KeyCallback KeyDownCallback=NULL;
 KeyCallback KeyUpCallback=NULL;
 uint32_t stable_counter=0;
@@ -166,6 +171,14 @@ uint8_t StylusKeyboardUpdate()
       }      
       key_bit<<=1;
   }
+  //if WRITE and VALUE buttons are pressed, is really MODE button.
+  //fix the raw array to reflect this.
+  if ( ( raw_key_bits & MODE_BUTTON_MASK ) == MODE_BUTTON_MASK )
+  {
+    raw_key_bits ^= MODE_BUTTON_HACK_MASK;
+    raw_key_bits |= MODE_BUTTON_MASK;
+  }
+  
   if ( raw_key_down!=raw_last_key_down)
   {
     stable_counter = 0;
@@ -196,8 +209,7 @@ uint8_t StylusKeyboardUpdate()
       
     }
   }
-  
-  
+    
   return(key_down);  
 }
 
@@ -209,6 +221,24 @@ uint8_t GetStylusKeyDown()
 uint32_t GetStylusKeyBits()
 {
   return(key_bits);
+}
+
+void SoundKeyDown(uint8_t key)
+{
+  last_key_played = key;
+  osc1.setFreq(mtof(float(key+36)));
+  osc2.setFreq(mtof(float(key+43)));
+  gain = 255;        
+}
+
+void SoundKeyUp()
+{
+  key = NOT_PRESSED;
+}
+
+void SoundRetrigger()
+{
+  SoundKeyDown( last_key_played );
 }
 
 void ReceiveKeyDown(uint8_t key )
@@ -223,25 +253,124 @@ void ReceiveKeyDown(uint8_t key )
     case S_PLAY:
       if ( key <= NUM_NOTES )
       {
-        osc1.setFreq(mtof(float(key+36)));
-        osc2.setFreq(mtof(float(key+43)));
-        gain = 255;        
+        SoundKeyDown(key);
       }
       else
       {
         switch( key )
         {
-          case PATCH_BUTTON:
+          case PATCH_BUTTON:        
+            last_patch_number = patch_number;
+            patch_number_changed = false;
+            state = S_PATCH_SELECT_DOWN;
+            break;
           case WRITE_BUTTON: 
+            last_patch_number = patch_number;
+            state = S_PATCH_WRITE_DOWN;
+            break;
           case VALUE_BUTTON: 
+            state = S_PARAMETER_SELECT_DOWN;
+            break;
           case MODE_BUTTON:
+            state = S_MODE_CHANGE_DOWN;
+            break;
         }
       }
       break;
-    case S_PATCH_SELECT:
+    case S_PATCH_SELECT_DOWN:
+    // waiting for up
+    // nothing else should happen here... nothing else SHOULD be able to happen here
+    //if it does, should I do something?
       break;
-    case S_PATCH_WRITE:
+    case S_PATCH_SELECT_WAIT_FOR_PATCH:
+      if ( key <= NUM_NOTES )
+      {
+        patch_number = key;
+        //load patch data
+        //play sound
+        //light correct light for patch
+        SoundRetrigger();
+        patch_number_changed = true;
+        state = S_PATCH_SELECT_PLAYING_PATCH_AUDITION;
+      }
+      else
+      {
+        switch( key )
+        {
+          case PATCH_BUTTON:           
+            if (patch_number_changed)
+            {
+              //do something with lights to indicate that new patch has been confirmed
+              state = S_PATCH_SELECT_DONE_SELECTING_DOWN;
+            }
+            //patch number not touched, do nothing.
+            break;
+          case WRITE_BUTTON: //any other button is ABORT to PLAY, but keeps patch change. Should it not?
+          case VALUE_BUTTON: 
+          case MODE_BUTTON:            
+            state = S_PATCH_SELECT_ABORT_DOWN;
+            break;
+        }
+      }
+      // waiting for up
+      break;      
+    case S_PATCH_SELECT_DONE_SELECTING_DOWN:
+      // TODO: hold lights GREEN
+      // waiting for up
+      break;      
+    case S_PATCH_SELECT_ABORT_DOWN:
+      // TODO: hold lights RED
+      // waiting for up
+      break;     
+
+
+    case S_PATCH_WRITE_DOWN:
+    // waiting for up
+    // nothing else should happen here... nothing else SHOULD be able to happen here
+    //if it does, should I do something?
       break;
+    case S_PATCH_WRITE_WAIT_FOR_PATCH:
+      if ( key <= NUM_NOTES )
+      {
+        patch_number = key;
+        //load patch data
+        //play sound
+        //light correct light for patch
+        SoundRetrigger();
+        patch_number_changed = true;
+        state = S_PATCH_WRITE_PLAYING_PATCH_AUDITION;
+      }
+      else
+      {
+        switch( key )
+        {
+          case WRITE_BUTTON:           
+            if (patch_number_changed)
+            {
+              //do something with lights to indicate that new patch has been confirmed
+              state = S_PATCH_WRITE_DONE_SELECTING_DOWN;
+            }
+            //patch number not touched, do nothing.
+            break;
+          case PATCH_BUTTON: //any other button is ABORT to PLAY, but keeps patch change. Should it not?
+          case VALUE_BUTTON: 
+          case MODE_BUTTON:            
+            state = S_PATCH_WRITE_ABORT_DOWN;
+            break;
+        }
+      }
+      // waiting for up
+      break;      
+    case S_PATCH_WRITE_DONE_SELECTING_DOWN:
+      // TODO: hold lights GREEN
+      // waiting for up
+      break;      
+    case S_PATCH_WRITE_ABORT_DOWN:
+      // TODO: hold lights RED
+      // waiting for up
+      break;  
+
+
     case S_PARAMETER_SELECT:
       break;
     case S_VALUE_CHANGE:
