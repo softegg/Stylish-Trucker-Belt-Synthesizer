@@ -22,40 +22,80 @@ uint8_t patch_number=0;
 uint8_t last_patch_number=0;
 uint8_t parameter_number=0;
 bool patch_number_changed = false;
+uint8_t current_mode_button = 0;
 
 // patch structure
 // 26 parameters packed into 
-struct patch_t
+class patch_t
 {
-  uint64_t param0:5;
-  uint64_t param1:5;
-  uint64_t param2:5;
-  uint64_t param3:5;
-  uint64_t param4:5;
-  uint64_t param5:5;
-  uint64_t param6:5;
-  uint64_t param7:5;
-  uint64_t param8:5;
-  uint64_t param9:5;
-  uint64_t param10:5;
-  uint64_t param11:5;
-  uint64_t param12:4;
+private:
+  uint8_t values[16];
+public:
+  bool Set( uint8_t param, uint8_t value )
+  {
+    uint8_t bitindex = param * 5;
+    uint8 bitsize = 5;
+    if ( param == 25 )
+    {
+      index--;//last value is 4 bits
+      bitsize = 3;
+    }
+    uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
+    int shift0 = 8 - ( ( bitindex & 0x7 ) + bitsize ); // keep low 4 bits for "modulus 8" behavior to get bit index 
+    uint8_t mask0= ( 1<< bitsize)  - 1; // make mask for low bits;
+    value &= mask0; //mask off excess bits
+    uint8_t val0 = value;
+    if ( shift => 0 ) // shift left if positive, right if negative
+    {
+      val0 <<= shift0
+      mask0 <<= shift0; // shift the mask to clear out values too
+      values[ byteindex ] &= ~mask0; //clear old bits
+      values[ byteindex ] |= val0;   //set new value bits
+      return( false ); // no error
+    }
+    //else if shift is negative, will need two bytes
+    val0 >>= (-shift0); //shift value and mask right... extra bits will be chopped off
+    mask0 >>= (-shift0); // shift the mask to clear out values too
+    values[ byteindex ]&=~mask0; //clear old bits
+    values[ byteindex ]|=val0;   //set new value bits
+    //now for 2nd byte stuff
+    int shift1 = 8 - (size + shift0);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
+    uint8_t val1 = value << shift1;       //shift left, extra bits fall out the top  
+    uint8_t mask1 = ( 1 << bitsize ) - 1; //rebuild mask
+    mask1 <<= shift1;                     //shift it to kill current value
+    byteindex++;                          //operate on 2nd byte
+    values[ byteindex ]&=~mask1;          //clear old value bits
+    values[ byteindex ]|=val1;            //set new value bits to 2nd byte
+    return( false );                      //no errors, return
+  };
+  uint8_t Get( uint8_t param )
+  {
+    uint8_t bitindex = param * 5;
+    uint8 bitsize = 5;
+    if ( param == 25 )
+    {
+      index--;//last value is 4 bits
+      bitsize = 3;
+    }
+    uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
+    int shift0 = 8 - ( ( bitindex & 0x7 ) + bitsize ); // keep low 4 bits for "modulus 8" behavior to get bit index 
+    uint8_t mask= ( 1<< bitsize)  - 1; // make mask for low bits;
+    uint8_t val = 0;
+    if ( shift => 0 ) // shift left if positive, right if negative
+    {
+      val = values[ byteindex ] >> shift0;
+      val &= mask;
+      
+      return( val ); // no error
+    }
+    //else
+    //mask
+       
   
-  uint64_t param13:5;
-  uint64_t param14:5;
-  uint64_t param15:5;
-  uint64_t param16:5;
-  uint64_t param17:5;
-  uint64_t param18:5;
-  uint64_t param19:5;
-  uint64_t param20:5;
-  uint64_t param21:5;
-  uint64_t param22:5;
-  uint64_t param23:5;
-  uint64_t param24:5;
-  uint64_t param26:4;
-  
+  }
 };
+
+  
 
 //order of operations:
 // tap button for thing to change - ring will be a solid color, different for each button
@@ -68,37 +108,38 @@ struct patch_t
 // after parameter number is selected, further presses will change parameter value
 
 enum eUI_States {
-  S_PLAY,
-  S_PATCH_SELECT_DOWN,
-  S_PATCH_SELECT_WAIT_FOR_PATCH,
-  S_PATCH_SELECT_PLAYING_PATCH_AUDITION,
-  S_PATCH_SELECT_DONE_SELECTING_DOWN,
-  S_PATCH_SELECT_ABORT_DOWN,
-  S_PATCH_WRITE_DOWN,
-  S_PATCH_WRITE_WAIT_FOR_PATCH,
-  S_PATCH_WRITE_PLAYING_PATCH_AUDITION,
-  S_PATCH_WRITE_DONE_SELECTING_DOWN,
-  S_PATCH_WRITE_ABORT_DOWN,
-  S_PARAMETER_SELECT_DOWN,
-  S_PARAMETER_SELECT_WAIT_FOR_PARAMETER_NUMBER,
-  S_PARAMETER_SELECT_PARAMETER_NUMBER_DOWN,
-  S_PARAMETER_VALUE_CHANGE_WAIT_FOR_VALUE,
-  S_PARAMETER_VALUE_CHANGE_VALUE_DOWN_AUDITION,
-  S_PARAMETER_VALUE_CHANGE_KEEP_DOWN,
-  S_PARAMETER_CALUE_CHANGE_ABORT_DOWN,
-  S_MODE_CHANGE_DOWN,
-  S_MODE_CHANGE_WAIT_FOR_MODE_NUMBER,
-  S_MODE_CHANGE_MODE_NUMBER_DOWN,
-  S_MODE_CHANGE_MODE_VALUE_WAIT,
-  S_MODE_CHANGE_MODE_VALUE_DOWN,
-  S_MODE_CHANGE_MODE_VALUE_KEEP_DOWN,
-  S_MODE_CHANGE_MODE_VALUE_ABORT_DOWN,
-  S_MODE_VALUE,
+  S_PLAY,               //just play notes
+  S_PATCH_SELECT,       //selecting patch. Takes 1 parameter (play sound) and verify with patch select button, (other button cancels)
+  S_PATCH_WRITE,        //writing patch.   Takes 1 parameter (play sound) and verify with patch write button, (other button cancels)
+  S_PARAMETER_SELECT,   //changing parameter. Step 1, select parameter #, automatically advances to next state: change parameter value (other button cancels)
+  S_PARAMETER_VALUE,    //changing parameter. Step 2. select the value, play the sound with updated value, verify change with parameter button (other button cancels)
+  S_MODE_CHANGE,        //changing mode. Step 1. Select the mode parameter number, automatically advances to next state: change mode value (other button cancels)
+  S_MODE_VALUE,         //changing mode. Step 2, select the value for mode parameter. verify change with mode button (other button cancels)
   S_NUM_STATES
 };
 
-eUI_States state=S_PLAY;
+enum eUI_SubStates {
+  SS_UP,
+  SS_PLAY_DOWN,
+  SS_SELECT_DOWN,
+  SS_SELECT_WAIT_FOR_VALUE,
+  SS_SELECT_PLAYING_VALUE_AUDITION,
+  SS_SELECT_DONE_SELECTING_DOWN,
+  SS_SELECT_ABORT_DOWN,
+  SS_NUM_STATES
+};
 
+enum eANIM_Bits {
+  eANIM_NONE     = 0,
+  eANIM_FLASH    = 1,
+  eANIM_DIAL     = 2,
+  eANIM_FADE     = 4,
+  eANIM_SPARKLES = 8
+};
+
+
+eUI_States state = S_PLAY;
+eUI_SubStates subState = SS_UP;
 // use #define for CONTROL_RATE, not a constant
 #define CONTROL_RATE 64 // Hz
 
@@ -241,6 +282,89 @@ void SoundRetrigger()
   SoundKeyDown( last_key_played );
 }
 
+
+uint8_t GetUIValue()
+{
+  switch ( state )
+  {
+    case S_PLAY:
+      return (key_down);
+      break;
+    case S_PATCH_SELECT:
+      return( patch_number );
+      break;
+    case S_PATCH_WRITE:
+      return( patch_number );
+      break;
+    case S_PARAMETER_SELECT:
+      return( parameter_number );
+      break;
+    case S_PARAMETER_VALUE:
+      return( 
+      break;
+    case S_MODE_CHANGE:
+      break;
+    case S_MODE_VALUE:
+      break;
+    case S_NUM_STATES:
+    default
+      break;      
+  }
+}
+
+
+uint8_t SubStateKeyDown(uint8_t key)
+{
+  switch ( subState )
+  {
+    case SS_UP:
+    case SS_PLAY_DOWN:
+    case SS_SELECT_DOWN:
+      // waiting for up
+      // nothing else should happen here... nothing else SHOULD be able to happen here
+      //if it does, should I do something?
+      break;    
+    case SS_SELECT_WAIT_FOR_VALUE:
+      if ( key <= NUM_NOTES )
+      {
+          SoundKeyDown(key);
+      }
+      else if ( key == current_mode_button )  //pressed current mode button, so write value
+      {
+      }
+      else  //selected some other button, abort
+      {
+      }
+      break;
+    case SS_SELECT_PLAYING_VALUE_AUDITION:
+    case SS_SELECT_DONE_SELECTING_DOWN:
+    case SS_SELECT_ABORT_DOWN:
+    case SS_NUM_STATES:
+    default:
+    
+  }
+}
+
+void SubStateKeyUp(uint8_t key)
+{
+  switch ( subState )
+  {
+    case SS_UP:
+    case SS_PLAY_DOWN:
+    case SS_SELECT_DOWN:
+      subState = SS_SELECT_WAIT_FOR_VALUE;
+      break;
+    case SS_SELECT_WAIT_FOR_VALUE:
+    case SS_SELECT_PLAYING_VALUE_AUDITION:
+    case SS_SELECT_DONE_SELECTING_DOWN:
+    case SS_SELECT_ABORT_DOWN:
+    case SS_NUM_STATES:
+    default:
+    
+  }
+}
+
+
 void ReceiveKeyDown(uint8_t key )
 {
 
@@ -260,124 +384,48 @@ void ReceiveKeyDown(uint8_t key )
         switch( key )
         {
           case PATCH_BUTTON:        
-            last_patch_number = patch_number;
-            patch_number_changed = false;
-            state = S_PATCH_SELECT_DOWN;
+            last_patch_number = patch_number;   // save the patch number in case of abort
+            patch_number_changed = false;       // clear patch change flag
+            current_mode_button = PATCH_BUTTON; // save button for comparison in substate code
+            state = S_PATCH_SELECT;             // set state
+            subState = SS_SELECT_DOWN;          // set substate
             break;
           case WRITE_BUTTON: 
-            last_patch_number = patch_number;
-            state = S_PATCH_WRITE_DOWN;
+            last_patch_number = patch_number;   // save the patch number in case of abort
+            current_mode_button = WRITE_BUTTON; // save button for comparison in substate code
+            state = S_PATCH_WRITE;              // set state
+            subState = SS_SELECT_DOWN;          // set substate
             break;
           case VALUE_BUTTON: 
-            state = S_PARAMETER_SELECT_DOWN;
+            current_mode_button = VALUE_BUTTON; // save button for comparison in substate code
+            state = S_PARAMETER_SELECT;         // set state
+            subState = SS_SELECT_DOWN;          // set substate
             break;
           case MODE_BUTTON:
-            state = S_MODE_CHANGE_DOWN;
+            current_mode_button = MODE_BUTTON;  // save button for comparison in substate code
+            state = S_MODE_CHANGE;              // set state
+            subState = SS_SELECT_DOWN;          // set substate
             break;
         }
       }
       break;
-    case S_PATCH_SELECT_DOWN:
-    // waiting for up
-    // nothing else should happen here... nothing else SHOULD be able to happen here
-    //if it does, should I do something?
+    case S_PATCH_SELECT:
+      KeySubstateDown(key);
       break;
-    case S_PATCH_SELECT_WAIT_FOR_PATCH:
-      if ( key <= NUM_NOTES )
-      {
-        patch_number = key;
-        //load patch data
-        //play sound
-        //light correct light for patch
-        SoundRetrigger();
-        patch_number_changed = true;
-        state = S_PATCH_SELECT_PLAYING_PATCH_AUDITION;
-      }
-      else
-      {
-        switch( key )
-        {
-          case PATCH_BUTTON:           
-            if (patch_number_changed)
-            {
-              //do something with lights to indicate that new patch has been confirmed
-              state = S_PATCH_SELECT_DONE_SELECTING_DOWN;
-            }
-            //patch number not touched, do nothing.
-            break;
-          case WRITE_BUTTON: //any other button is ABORT to PLAY, but keeps patch change. Should it not?
-          case VALUE_BUTTON: 
-          case MODE_BUTTON:            
-            state = S_PATCH_SELECT_ABORT_DOWN;
-            break;
-        }
-      }
-      // waiting for up
-      break;      
-    case S_PATCH_SELECT_DONE_SELECTING_DOWN:
-      // TODO: hold lights GREEN
-      // waiting for up
-      break;      
-    case S_PATCH_SELECT_ABORT_DOWN:
-      // TODO: hold lights RED
-      // waiting for up
-      break;     
-
-
-    case S_PATCH_WRITE_DOWN:
-    // waiting for up
-    // nothing else should happen here... nothing else SHOULD be able to happen here
-    //if it does, should I do something?
+    case S_PATCH_WRITE:
+      KeySubstateDown(key);
       break;
-    case S_PATCH_WRITE_WAIT_FOR_PATCH:
-      if ( key <= NUM_NOTES )
-      {
-        patch_number = key;
-        //load patch data
-        //play sound
-        //light correct light for patch
-        SoundRetrigger();
-        patch_number_changed = true;
-        state = S_PATCH_WRITE_PLAYING_PATCH_AUDITION;
-      }
-      else
-      {
-        switch( key )
-        {
-          case WRITE_BUTTON:           
-            if (patch_number_changed)
-            {
-              //do something with lights to indicate that new patch has been confirmed
-              state = S_PATCH_WRITE_DONE_SELECTING_DOWN;
-            }
-            //patch number not touched, do nothing.
-            break;
-          case PATCH_BUTTON: //any other button is ABORT to PLAY, but keeps patch change. Should it not?
-          case VALUE_BUTTON: 
-          case MODE_BUTTON:            
-            state = S_PATCH_WRITE_ABORT_DOWN;
-            break;
-        }
-      }
-      // waiting for up
-      break;      
-    case S_PATCH_WRITE_DONE_SELECTING_DOWN:
-      // TODO: hold lights GREEN
-      // waiting for up
-      break;      
-    case S_PATCH_WRITE_ABORT_DOWN:
-      // TODO: hold lights RED
-      // waiting for up
-      break;  
-
-
     case S_PARAMETER_SELECT:
+      KeySubstateDown(key);
       break;
     case S_VALUE_CHANGE:
+      KeySubstateDown(key);
       break;
     case S_MODE_CHANGE:
+      KeySubstateDown(key);
       break;
     case S_MODE_VALUE:
+      KeySubstateDown(key);
       break;
     default:
       break:
@@ -389,6 +437,7 @@ void ReceiveKeyUp(uint8_t key )
   Serial.print("Key Up ");
   Serial.print(key,DEC);
   Serial.println(".");
+  KeySubstateUp(key);
 }
 
 //Mozzi
