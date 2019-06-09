@@ -1,17 +1,17 @@
-EESchema Schematic File Version 4
+EESchema Schematic File Version 5
 LIBS:Stylish-Belt-Synth - Full-cache
-EELAYER 28 0
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 3 3
-Title ""
-Date ""
-Rev ""
+Sheet 2 2
+Title "\"Stylish\" Trucker Belt Stylus Synthesizer"
+Date "2019-05-07"
+Rev "0.3"
 Comp "SoftEgg"
 Comment1 "V0.1 T.B. Trzepacz 2018/2/19"
 Comment2 "V0.2 T.B. Trzepacz 2018/10/14"
-Comment3 ""
+Comment3 "V0.3 T.B Trzepacz 2019/5/7"
 Comment4 ""
 $EndDescr
 $Comp
@@ -555,7 +555,7 @@ Wire Wire Line
 Text HLabel 3100 600  0    50   Input ~ 0
 DIN
 Text HLabel 3100 750  0    50   Input ~ 0
-5V
+VIN
 Text HLabel 4500 600  2    50   Input ~ 0
 DOUT
 Text HLabel 4500 750  2    50   Input ~ 0

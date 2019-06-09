@@ -1,11 +1,11 @@
 EESchema Schematic File Version 4
-LIBS:Stylish-Belt-Synth - Full-cache
-EELAYER 28 0
+LIBS:XH-M125-amp-board-cache
+EELAYER 29 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
-Sheet 2 3
-Title "MX-M125 XPT8871 Amplifier Board"
+Sheet 1 1
+Title "XH-M125 XPT8871 Amplifier Board"
 Date "2018-03-10"
 Rev "1"
 Comp "SoftEgg"
