@@ -619,7 +619,7 @@ F 1 "Volume" H 9941 3265 50  0000 C CNN
 F 2 "SoftEggKiCAD:Wheel_Pot_W_Switch_RV12_B103_FUSTAR" H 9750 3325 50  0001 C CNN
 F 3 "~" H 9750 3325 50  0001 C CNN
 	1    9750 3325
-	0    -1   1    0   
+	0    1    1    0   
 $EndComp
 Connection ~ 9075 6000
 Wire Wire Line
@@ -716,8 +716,6 @@ Wire Wire Line
 	10300 2750 10175 2750
 Text Notes 11000 2172 2    47   ~ 0
 Power filtering\ncapacitors might\nbe optional.
-Text Notes 8175 2150 0    47   ~ 0
-Next revision we try\nmounting battery clips to the PCB.\n
 Text Notes 10000 3050 0    47   ~ 0
 Switch is ganged with \nwheel potentiometer.
 Text Notes 9800 5950 0    47   ~ 0
@@ -730,11 +728,6 @@ Text Notes 8375 1525 0    47   ~ 0
 Diodes create 4th button input\nas 2nd and 3rd button simultaneous press.
 Text Notes 800  3650 0    47   ~ 0
 Keyboard is pattern \non front of PCB.
-Wire Wire Line
-	9575 2875 9600 2875
-Wire Wire Line
-	9900 2875 10300 2875
-Connection ~ 10300 2875
 Wire Wire Line
 	10300 2875 10875 2875
 $Comp
@@ -756,9 +749,6 @@ Wire Wire Line
 	8825 3800 8825 3900
 Wire Wire Line
 	9575 1950 9575 2425
-Connection ~ 9575 2425
-Wire Wire Line
-	9575 2425 9575 2875
 Wire Wire Line
 	9750 3475 9750 3775
 Wire Wire Line
@@ -789,7 +779,7 @@ L device:R R2
 U 1 1 5CE2A35E
 P 8825 3550
 F 0 "R2" H 8700 3700 50  0000 L CNN
-F 1 "47Ω" V 8825 3475 50  0000 L CNN
+F 1 "47KΩ" V 8825 3475 39  0000 L CNN
 F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8755 3550 50  0001 C CNN
 F 3 "~" H 8825 3550 50  0001 C CNN
 	1    8825 3550
@@ -809,7 +799,7 @@ L device:R R3
 U 1 1 5CE50512
 P 4450 6150
 F 0 "R3" V 4350 6150 50  0000 C CNN
-F 1 "120Ω" V 4450 6150 50  0000 C CNN
+F 1 "44Ω" V 4450 6150 50  0000 C CNN
 F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 4380 6150 50  0001 C CNN
 F 3 "~" H 4450 6150 50  0001 C CNN
 	1    4450 6150
@@ -819,40 +809,12 @@ Wire Wire Line
 	4200 6150 4300 6150
 Wire Wire Line
 	4600 6150 5000 6150
-$Comp
-L SoftEggKicadLib:SW_DPDT SW1
-U 1 1 5CE36C2E
-P 9300 3750
-F 0 "SW1" H 9225 3825 50  0000 R CNN
-F 1 "OVERDRIVE" H 9500 3350 50  0000 R CNN
-F 2 "SoftEggKiCAD:MSS22D18+THT" H 9300 3750 50  0001 C CNN
-F 3 "" H 9300 3750 50  0001 C CNN
-	1    9300 3750
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8975 3800 8975 3550
 Wire Wire Line
 	8975 3550 9100 3550
 Wire Wire Line
-	8825 3325 9550 3325
-Wire Wire Line
-	9500 3450 9550 3450
-Wire Wire Line
-	9550 3450 9550 3325
-Connection ~ 9550 3325
-Wire Wire Line
-	9550 3325 9600 3325
-Wire Wire Line
-	9500 3800 9550 3800
-Wire Wire Line
-	9550 3800 9550 3450
-Connection ~ 9550 3450
-Wire Wire Line
-	8975 3800 8975 3900
-Wire Wire Line
-	8975 3900 9100 3900
-Connection ~ 8975 3800
+	8825 3325 9525 3325
 $Comp
 L conn:Conn_01x01 BTN1
 U 1 1 5CE9AA2C
@@ -914,7 +876,7 @@ Connection ~ 8700 2425
 Wire Wire Line
 	8700 2425 8900 2425
 Wire Wire Line
-	9050 2425 9200 2425
+	9050 2425 9150 2425
 $Comp
 L SoftEggKicadLib:AABatteryEnd BT34
 U 1 1 5CED58FA
@@ -926,4 +888,75 @@ F 3 "~" H 8925 2950 50  0001 C CNN
 	1    8925 2950
 	0    -1   -1   0   
 $EndComp
+$Comp
+L device:Battery BT34H1
+U 1 1 5D0F71F9
+P 8950 2300
+F 0 "BT34H1" V 8705 2300 50  0000 C CNN
+F 1 "Battery" V 8796 2300 50  0000 C CNN
+F 2 "Battery_Holders:BatteryHolder_Keystone_2462_2xAA" V 8950 2360 50  0001 C CNN
+F 3 "~" V 8950 2360 50  0001 C CNN
+	1    8950 2300
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8225 2425 8225 2300
+Wire Wire Line
+	8225 2300 8300 2300
+Connection ~ 8225 2425
+Wire Wire Line
+	8700 2425 8700 2300
+Wire Wire Line
+	8700 2300 8750 2300
+Connection ~ 8700 2300
+Wire Wire Line
+	9150 2300 9150 2425
+Connection ~ 9150 2425
+Wire Wire Line
+	9150 2425 9200 2425
+$Comp
+L device:Battery BT12H1
+U 1 1 5D0F49DB
+P 8500 2300
+F 0 "BT12H1" V 8255 2300 50  0000 C CNN
+F 1 "Battery" V 8346 2300 50  0000 C CNN
+F 2 "Battery_Holders:BatteryHolder_Keystone_2462_2xAA" V 8500 2360 50  0001 C CNN
+F 3 "~" V 8500 2360 50  0001 C CNN
+	1    8500 2300
+	0    1    1    0   
+$EndComp
+Connection ~ 9525 3325
+Wire Wire Line
+	9525 3325 9600 3325
+Wire Wire Line
+	10300 2875 9950 2875
+Wire Wire Line
+	9950 2875 9950 2975
+Wire Wire Line
+	9950 2975 9600 2975
+Wire Wire Line
+	9600 2975 9600 2875
+Connection ~ 10300 2875
+Wire Wire Line
+	9900 2875 9900 2700
+Wire Wire Line
+	9900 2700 9575 2700
+Wire Wire Line
+	9575 2700 9575 2425
+Connection ~ 9575 2425
+$Comp
+L switches:SW_SPDT SW1
+U 1 1 5CE36C2E
+P 9300 3650
+F 0 "SW1" H 9400 3825 50  0000 R CNN
+F 1 "OVERDRIVE" H 9500 3425 50  0000 R CNN
+F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 9300 3650 50  0001 C CNN
+F 3 "" H 9300 3650 50  0001 C CNN
+	1    9300 3650
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	9525 3650 9525 3325
+Wire Wire Line
+	9500 3650 9525 3650
 $EndSCHEMATC
