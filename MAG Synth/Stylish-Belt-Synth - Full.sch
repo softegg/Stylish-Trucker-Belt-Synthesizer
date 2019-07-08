@@ -83,23 +83,23 @@ $EndComp
 $Comp
 L device:C_Small C1
 U 1 1 5A8BA68B
-P 8825 4000
-F 0 "C1" V 8725 3975 50  0000 L CNN
-F 1 "1μF" H 8835 3920 50  0000 L CNN
-F 2 "SoftEggKiCAD:C_Disc_D5.0mm_W2.5mm_P5.00mm+SMD" H 8825 4000 50  0001 C CNN
-F 3 "" H 8825 4000 50  0001 C CNN
-	1    8825 4000
+P 8050 3550
+F 0 "C1" V 7950 3525 50  0000 L CNN
+F 1 "220nF" H 8060 3470 50  0000 L CNN
+F 2 "SoftEggKiCAD:C_Disc_D5.0mm_W2.5mm_P5.00mm+SMD" H 8050 3550 50  0001 C CNN
+F 3 "" H 8050 3550 50  0001 C CNN
+	1    8050 3550
 	1    0    0    -1  
 $EndComp
 $Comp
 L device:R R1
 U 1 1 5A8BA742
-P 8600 3800
-F 0 "R1" V 8680 3800 50  0000 C CNN
-F 1 "8Ω" V 8600 3800 50  0000 C CNN
-F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8530 3800 50  0001 C CNN
-F 3 "" H 8600 3800 50  0001 C CNN
-	1    8600 3800
+P 7875 3325
+F 0 "R1" V 7955 3325 50  0000 C CNN
+F 1 "330Ω" V 7875 3325 50  0000 C CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 7805 3325 50  0001 C CNN
+F 3 "" H 7875 3325 50  0001 C CNN
+	1    7875 3325
 	0    1    1    0   
 $EndComp
 $Comp
@@ -116,8 +116,6 @@ $EndComp
 Text Notes 9775 4075 0    60   ~ 0
 R/C Circuit to convert \nPWM pulses to waveform
 Wire Notes Line
-	11075 4450 8325 4450
-Wire Notes Line
 	8350 575  11075 600 
 Wire Notes Line
 	11075 600  11075 1625
@@ -130,8 +128,8 @@ PCB UI Pads\nfor Stylus
 Text Notes 4825 1825 0    60   ~ 0
 STM32F103C8T6\n"Blue Pill" board
 Wire Wire Line
-	8450 3800 8425 3800
-Text Label 8425 3800 1    50   ~ 0
+	7725 3325 7700 3325
+Text Label 7700 3325 3    50   ~ 0
 AUDIO_OUT
 Text Label 4050 4250 2    50   ~ 0
 AUDIO_OUT
@@ -149,8 +147,6 @@ F5 "GND" I L 5000 6250 50
 $EndSheet
 Wire Wire Line
 	5000 6050 4925 6050
-Wire Wire Line
-	4800 6250 5000 6250
 $Comp
 L SoftEggKicadLib:StylusKeyboardA KB1
 U 1 1 5BA18F70
@@ -171,8 +167,6 @@ Wire Wire Line
 	5500 2000 6300 2000
 Wire Wire Line
 	4200 4700 5500 4700
-Wire Notes Line
-	8325 3100 11075 3100
 Wire Notes Line
 	11075 3100 11075 4450
 Text Label 1400 1100 0    50   ~ 0
@@ -287,7 +281,7 @@ Text Label 6300 3200 0    50   ~ 0
 LED_DIN
 Text Label 4925 6050 2    50   ~ 0
 LED_DIN
-Text Label 4200 6150 2    50   ~ 0
+Text Label 3750 6150 2    50   ~ 0
 +3.3V
 Text Label 9075 6300 2    50   ~ 0
 +5V
@@ -323,12 +317,12 @@ $EndComp
 $Comp
 L power:GND #PWR0103
 U 1 1 5BACC962
-P 4800 6250
-F 0 "#PWR0103" H 4800 6000 50  0001 C CNN
-F 1 "GND" H 4805 6077 50  0000 C CNN
-F 2 "" H 4800 6250 50  0001 C CNN
-F 3 "" H 4800 6250 50  0001 C CNN
-	1    4800 6250
+P 4500 6400
+F 0 "#PWR0103" H 4500 6150 50  0001 C CNN
+F 1 "GND" H 4505 6227 50  0000 C CNN
+F 2 "" H 4500 6400 50  0001 C CNN
+F 3 "" H 4500 6400 50  0001 C CNN
+	1    4500 6400
 	1    0    0    -1  
 $EndComp
 Text Label 6925 2000 2    50   ~ 0
@@ -361,18 +355,16 @@ $EndComp
 $Comp
 L power:GND #PWR0106
 U 1 1 5BAD51F5
-P 8825 4175
-F 0 "#PWR0106" H 8825 3925 50  0001 C CNN
-F 1 "GND" H 8830 4002 50  0000 C CNN
-F 2 "" H 8825 4175 50  0001 C CNN
-F 3 "" H 8825 4175 50  0001 C CNN
-	1    8825 4175
+P 8050 3725
+F 0 "#PWR0106" H 8050 3475 50  0001 C CNN
+F 1 "GND" H 8055 3552 50  0000 C CNN
+F 2 "" H 8050 3725 50  0001 C CNN
+F 3 "" H 8050 3725 50  0001 C CNN
+	1    8050 3725
 	1    0    0    -1  
 $EndComp
-Text Label 10625 3775 0    50   ~ 0
+Text Label 10625 3800 0    50   ~ 0
 PWM_OUT
-Wire Notes Line
-	8325 3100 8325 4450
 Wire Wire Line
 	6300 2000 6925 2000
 Text Label 1400 1000 0    50   ~ 0
@@ -630,9 +622,7 @@ Connection ~ 8250 5500
 Wire Wire Line
 	7825 5100 8025 5100
 Wire Wire Line
-	8750 3800 8825 3800
-Wire Wire Line
-	8825 4100 8825 4175
+	8050 3650 8050 3725
 Wire Wire Line
 	8550 2425 8225 2425
 Wire Wire Line
@@ -746,13 +736,11 @@ Wire Wire Line
 Wire Wire Line
 	8575 5100 8550 5100
 Wire Wire Line
-	8825 3800 8825 3900
-Wire Wire Line
 	9575 1950 9575 2425
 Wire Wire Line
-	9750 3475 9750 3775
+	9750 3475 9750 3800
 Wire Wire Line
-	9750 3775 10625 3775
+	9750 3800 10625 3800
 Wire Wire Line
 	9900 3325 10175 3325
 Wire Wire Line
@@ -774,47 +762,10 @@ Wire Wire Line
 	9775 5300 9850 5300
 Wire Wire Line
 	9775 5500 10275 5500
-$Comp
-L device:R R2
-U 1 1 5CE2A35E
-P 8825 3550
-F 0 "R2" H 8700 3700 50  0000 L CNN
-F 1 "47KΩ" V 8825 3475 39  0000 L CNN
-F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8755 3550 50  0001 C CNN
-F 3 "~" H 8825 3550 50  0001 C CNN
-	1    8825 3550
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	8825 3325 8825 3400
-Wire Wire Line
-	8825 3700 8825 3800
-Connection ~ 8825 3800
-Wire Wire Line
-	8825 3800 8975 3800
 Text Label 6300 2300 0    50   ~ 0
 +3.3V
-$Comp
-L device:R R3
-U 1 1 5CE50512
-P 4450 6150
-F 0 "R3" V 4350 6150 50  0000 C CNN
-F 1 "44Ω" V 4450 6150 50  0000 C CNN
-F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 4380 6150 50  0001 C CNN
-F 3 "~" H 4450 6150 50  0001 C CNN
-	1    4450 6150
-	0    1    1    0   
-$EndComp
 Wire Wire Line
-	4200 6150 4300 6150
-Wire Wire Line
-	4600 6150 5000 6150
-Wire Wire Line
-	8975 3800 8975 3550
-Wire Wire Line
-	8975 3550 9100 3550
-Wire Wire Line
-	8825 3325 9525 3325
+	3750 6150 3850 6150
 $Comp
 L conn:Conn_01x01 BTN1
 U 1 1 5CE9AA2C
@@ -925,9 +876,6 @@ F 3 "~" V 8500 2360 50  0001 C CNN
 	1    8500 2300
 	0    1    1    0   
 $EndComp
-Connection ~ 9525 3325
-Wire Wire Line
-	9525 3325 9600 3325
 Wire Wire Line
 	10300 2875 9950 2875
 Wire Wire Line
@@ -945,18 +893,111 @@ Wire Wire Line
 	9575 2700 9575 2425
 Connection ~ 9575 2425
 $Comp
-L switches:SW_SPDT SW1
-U 1 1 5CE36C2E
-P 9300 3650
-F 0 "SW1" H 9400 3825 50  0000 R CNN
-F 1 "OVERDRIVE" H 9500 3425 50  0000 R CNN
-F 2 "Pin_Headers:Pin_Header_Straight_1x03_Pitch2.54mm" H 9300 3650 50  0001 C CNN
-F 3 "" H 9300 3650 50  0001 C CNN
-	1    9300 3650
-	-1   0    0    -1  
+L device:R R3
+U 1 1 5CE50512
+P 4000 6150
+F 0 "R3" V 3900 6150 50  0000 C CNN
+F 1 "44Ω" V 4000 6150 50  0000 C CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 3930 6150 50  0001 C CNN
+F 3 "~" H 4000 6150 50  0001 C CNN
+	1    4000 6150
+	0    1    1    0   
 $EndComp
 Wire Wire Line
-	9525 3650 9525 3325
+	4500 6150 5000 6150
+$Comp
+L device:CP1_Small CL16
+U 1 1 5D1435CA
+P 4500 6250
+F 0 "CL16" V 4272 6250 50  0000 C CNN
+F 1 "22µF" V 4363 6250 50  0000 C CNN
+F 2 "SoftEggKiCAD:C_Disc_D5.0mm_W2.5mm_P5.00mm+SMD" H 4500 6250 50  0001 C CNN
+F 3 "~" H 4500 6250 50  0001 C CNN
+	1    4500 6250
+	1    0    0    -1  
+$EndComp
 Wire Wire Line
-	9500 3650 9525 3650
+	4150 6150 4500 6150
+Connection ~ 4500 6150
+Wire Wire Line
+	5000 6250 4775 6250
+Wire Wire Line
+	4775 6250 4775 6350
+Wire Wire Line
+	4775 6350 4500 6350
+Wire Wire Line
+	4500 6350 4500 6400
+Connection ~ 4500 6350
+Text Notes 4200 6625 2    47   ~ 0
+This capacitor eliminates LED ring noise!
+Wire Notes Line style solid
+	4200 6550 4425 6300
+$Comp
+L device:R R2
+U 1 1 5CE2A35E
+P 8225 3325
+F 0 "R2" V 8300 3280 50  0000 L CNN
+F 1 "3.3kΩ" V 8225 3250 39  0000 L CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8155 3325 50  0001 C CNN
+F 3 "~" H 8225 3325 50  0001 C CNN
+	1    8225 3325
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	8050 3450 8050 3325
+Connection ~ 8050 3325
+Wire Wire Line
+	8050 3325 8075 3325
+Wire Wire Line
+	8025 3325 8050 3325
+$Comp
+L device:R R4
+U 1 1 5D1B92DC
+P 8575 3325
+F 0 "R4" V 8650 3280 50  0000 L CNN
+F 1 "33kΩ" V 8575 3250 39  0000 L CNN
+F 2 "SoftEggKiCAD:R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal+SMD804" V 8505 3325 50  0001 C CNN
+F 3 "~" H 8575 3325 50  0001 C CNN
+	1    8575 3325
+	0    1    1    0   
+$EndComp
+$Comp
+L device:C_Small C4
+U 1 1 5D1B9DA4
+P 8400 3550
+F 0 "C4" V 8300 3525 50  0000 L CNN
+F 1 "4.7nF" H 8410 3470 50  0000 L CNN
+F 2 "SoftEggKiCAD:C_Disc_D5.0mm_W2.5mm_P5.00mm+SMD" H 8400 3550 50  0001 C CNN
+F 3 "" H 8400 3550 50  0001 C CNN
+	1    8400 3550
+	1    0    0    -1  
+$EndComp
+$Comp
+L power:GND #PWR?
+U 1 1 5D1B9DAF
+P 8400 3725
+F 0 "#PWR?" H 8400 3475 50  0001 C CNN
+F 1 "GND" H 8405 3552 50  0000 C CNN
+F 2 "" H 8400 3725 50  0001 C CNN
+F 3 "" H 8400 3725 50  0001 C CNN
+	1    8400 3725
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8400 3450 8400 3325
+Wire Wire Line
+	8400 3650 8400 3725
+Wire Wire Line
+	8375 3325 8400 3325
+Wire Wire Line
+	8400 3325 8425 3325
+Connection ~ 8400 3325
+Wire Notes Line
+	7580 3100 11070 3100
+Wire Notes Line
+	7580 3100 7580 4450
+Wire Wire Line
+	8725 3325 9600 3325
+Wire Notes Line
+	11075 4450 7580 4450
 $EndSCHEMATC
