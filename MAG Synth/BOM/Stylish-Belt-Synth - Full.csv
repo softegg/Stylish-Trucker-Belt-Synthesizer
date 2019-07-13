@@ -1,32 +1,32 @@
-Stylish! Trucker Belt Buckle Synthesizer,,,,,
-Version 4.1,,,,,
-Bill of Materials,,,,,
-Designator,Package,Quantity,Designation,Supplier and ref,Notes
-R4,SMD 0805,1,33k?,https://www.aliexpress.com/item/32668040347.html,
-C4,SMD 0805,1,4.7nF 472,https://www.aliexpress.com/item/32964553793.html,
-CL16,SMD 0805,1,22µF 226,https://www.aliexpress.com/item/32964553793.html,
-RV1,Wheel_Pot_W_Switch_RV12_B103_FUSTAR,1,Volume,https://www.aliexpress.com/item/32998159760.html,10k? volume wheel potentiometer
-"BT34H1, BT12H1",BatteryHolder_Keystone_2462_2xAA_MOD,2,Battery,https://www.aliexpress.com/item/32858688098.html,
-"CA2, CA3",SMD 0805,1,1?F 105,https://www.aliexpress.com/item/32964553793.html,
-CA1,CP_Radial_Tantal_D4.5mm_P2.50mm,1,220?F,,
-"D1, D2",SMD 0805 SOD-123,2,1N4148,https://www.aliexpress.com/item/32897041428.html,Select 1n4148 SOD-123 See line on silk screen or arrow in copper for orientation.
-"D3, D4",SMD 0805,2,1N5822,https://www.aliexpress.com/item/32854160797.html,Select 1n5822 SS34. See line on silk screen or arrow in copper for orientation.
-J1,Stereo_Jack_3.5mm_Switch_Ledino_KB3SPRS,1,Headphone,https://www.aliexpress.com/item/32801912481.html,
-"RGB0, RGB11, RGB12, RGB13, RGB14, RGB15, RGB9, RGB8, RGB7, RGB6, RGB10, RGB4, RGB3, RGB2, RGB1, RGB5",WS2812B,16,WS2812B,https://www.aliexpress.com/item/32776703442.html,Very heat sensitive. Please follow heating profile on datasheet: http://www.world-semi.com/DownLoadFile/108
-RA1,SMD 0805,1,100?,https://www.aliexpress.com/item/32865947306.html,
-C3,CP_Radial_D10.0mm_P5.00mm,1,470?F,https://www.aliexpress.com/item/32676146418.html,Electrolytic thru hole capacitor
-C2,CP_Radial_D10.0mm_P5.00mm,1,1000?F,https://www.aliexpress.com/item/1948624868.html,Electrolytic thru hole capacitor
-LS1,Pin_Header_Angle_1x02_Pitch2.54mm,1,Speaker,https://www.aliexpress.com/item/32907473925.html,Speaker will mount in center hole. Leads should be long enough to reach and leave some slack.
-CA4,SMD 0805,1,0.39?F 394,https://www.aliexpress.com/item/32943505729.html,
-C1,SMD 0805,1,220nF 224,https://www.aliexpress.com/item/32998503996.html,"Couldn’t find an 805, but 1206 will still fit."
-"CL15, CL14, CL13, CL12, CL11, CL10, CL9, CL8, CL7, CL6, CL5, CL4, CL3, CL2, CL1, CL0",SMD805,16,0.1µF 104,https://www.aliexpress.com/item/1115774532.html,
-R2,SMD 0805,1,3.3k?,https://www.aliexpress.com/item/32865947306.html,
-R1,SMD 0805,1,330?,https://www.aliexpress.com/item/32865947306.html,
-R3,SMD 0805,1,44?,https://www.aliexpress.com/item/32865947306.html,43? is ok.
-U1,stm32f103c8t6-module-china-smd,1,stm32f103c8t6-module-china,https://www.aliexpress.com/item/STM32F103C8T6-ARM-STM32-Minimum-Development-Board-Module-for-arduino/32809970602.html,I implemented as 2 pin female pin headers and used the pinheaders that come with the controller. 
-U1,Pin_Header_Angle_1x020_Pitch2.54mm_female,2,stm32f103c8t6-module-china,https://www.aliexpress.com/item/32733362388.html,Female pin headers for above. Be sure spacing is compatible when soldering.
-U2,SOIC-8-N,1,XPT8871,https://www.aliexpress.com/item/50PCS-XPT8871-8871-SOP8/32918584881.html,
-J0,USB_B,1,USB_B,https://www.aliexpress.com/item/539692317.html,
-,,,,,
-Stylus,Stylus,1,Stylus,https://www.aliexpress.com/item/32959674689.html,"Sold 2 per set, need 1 per unit."
-,Belt Clip,2,,https://www.aliexpress.com/item/32991844720.html,Need these to attach to the case. Can we please ship these with the PCB order?
+Stylish! Trucker Belt Buckle Synthesizer,,,,,,
+Version 4.1,,,,,,
+Bill of Materials,,,,,,
+Designator,Package,Quantity,Designation,Supplier and ref,Notes,Changed
+R4,SMD 0805,1,33k?,https://www.aliexpress.com/item/32668040347.html,,
+C4,SMD 0805,1,4.7nF 472,https://www.aliexpress.com/item/32964553793.html,,
+CL16,SMD 0805,1,22µF 226,https://www.aliexpress.com/item/32964553793.html,,
+RV1,Wheel_Pot_W_Switch_RV12_B103_FUSTAR,1,Volume,https://www.aliexpress.com/item/32998159760.html,10k? volume wheel potentiometer,
+"BT34H1, BT12H1",BatteryHolder_Keystone_2462_2xAA_MOD,2,Battery,https://www.aliexpress.com/item/32858688098.html,,
+"CA2, CA3",SMD 0805,1,1?F 105,https://www.aliexpress.com/item/32964553793.html,,
+CA1,CP_Radial_Tantal_D4.5mm_P2.50mm,1,220?F,,,
+"D1, D2",SMD 0805 SOD-123,2,1N4148,https://www.aliexpress.com/item/32897041428.html,Select 1n4148 SOD-123 See line on silk screen or arrow in copper for orientation.,
+"D3, D4",SMD 0805,2,1N5822,https://www.aliexpress.com/item/32854160797.html,Select 1n5822 SS34. See line on silk screen or arrow in copper for orientation.,
+J1,Stereo_Jack_3.5mm_Switch_Ledino_KB3SPRS,1,Headphone,https://www.aliexpress.com/item/32801912481.html,,
+"RGB0, RGB11, RGB12, RGB13, RGB14, RGB15, RGB9, RGB8, RGB7, RGB6, RGB10, RGB4, RGB3, RGB2, RGB1, RGB5",WS2812B,16,WS2812B,https://www.aliexpress.com/item/32776703442.html,Very heat sensitive. Please follow heating profile on datasheet: http://www.world-semi.com/DownLoadFile/108,
+RA1,SMD 0805,1,100?,https://www.aliexpress.com/item/32865947306.html,,
+C3,CP_Radial_D10.0mm_P5.00mm,1,470?F,https://www.aliexpress.com/item/32676146418.html,Electrolytic thru hole capacitor,
+C2,CP_Radial_D10.0mm_P5.00mm,1,1000?F,https://www.aliexpress.com/item/1948624868.html,Electrolytic thru hole capacitor,
+LS1,4 Ohm 3W Loudspeaker 52MM,1,Speaker,https://www.aliexpress.com/item/32710566874.html,Speaker will mount in center hole. Leads should be long enough to reach and leave some slack. ,"July 12th, 2019"
+CA4,SMD 0805,1,0.39?F 394,https://www.aliexpress.com/item/32943505729.html,,
+C1,SMD 0805,1,220nF 224,https://www.aliexpress.com/item/32998503996.html,"Couldn’t find an 805, but 1206 will still fit.",
+"CL15, CL14, CL13, CL12, CL11, CL10, CL9, CL8, CL7, CL6, CL5, CL4, CL3, CL2, CL1, CL0",SMD805,16,0.1µF 104,https://www.aliexpress.com/item/1115774532.html,,
+R2,SMD 0805,1,3.3k?,https://www.aliexpress.com/item/32865947306.html,,
+R1,SMD 0805,1,330?,https://www.aliexpress.com/item/32865947306.html,,
+R3,SMD 0805,1,30?,https://www.aliexpress.com/item/32865947306.html,Lowered to improve LED blue and green color.,"July 13th, 2019"
+U1,stm32f103c8t6-module-china-smd,1,stm32f103c8t6-module-china,https://www.aliexpress.com/item/STM32F103C8T6-ARM-STM32-Minimum-Development-Board-Module-for-arduino/32809970602.html,I implemented as 2 pin female pin headers and used the pinheaders that come with the controller. ,
+U1,Pin_Header_Angle_1x020_Pitch2.54mm_female,2,stm32f103c8t6-module-china,https://www.aliexpress.com/item/32733362388.html,Female pin headers for above. Be sure spacing is compatible when soldering.,
+U2,SOIC-8-N,1,XPT8871,https://www.aliexpress.com/item/50PCS-XPT8871-8871-SOP8/32918584881.html,,
+J0,USB_B,1,USB_B,https://www.aliexpress.com/item/539692317.html,,
+,,,,,,
+Stylus,Stylus,1,Stylus,https://www.aliexpress.com/item/32959674689.html,"Sold 2 per set, need 1 per unit.",
+Belt Clip,Belt Clip,2,Belt Clip,https://www.aliexpress.com/item/32991844720.html,Need these to attach to the case. Can we please ship these with the PCB order?,
