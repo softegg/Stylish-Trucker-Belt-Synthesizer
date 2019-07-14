@@ -298,9 +298,9 @@
     (pad "8" smd rect (at -1.905 3.175 90) (size 0.508 1.143) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 62 "Net-(J1-Pad1)"))
     (pad "9" smd rect (at 0 0 90) (size 4 3) (layers "B.Cu" "B.Paste" "B.Mask"))
-    (model "SMD_Packages.3dshapes/SOIC-8-N.wrl"
+    (model "${KISYS3DMOD}/SMD_Packages.3dshapes/SOIC08 narrow.stp"
       (at (xyz 0 0 0))
-      (scale (xyz 0.5 0.38 0.5))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -372,9 +372,9 @@
       (net 71 "Net-(RR4-Pad1)"))
     (pad "1" smd rect (at 2.3125 0) (size 2 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 71 "Net-(RR4-Pad1)"))
-    (model "${KISYS3DMOD}/Resistors_THT.3dshapes/R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0805_2012Metric.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -415,8 +415,8 @@
       (net 70 "Net-(C4-Pad1)"))
     (pad "1" smd rect (at 0.889 0) (size 2.286 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 70 "Net-(C4-Pad1)"))
-    (model "${KISYS3DMOD}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-      (at (xyz 0 0 0))
+    (model "${KISYS3DMOD}/Capacitors_SMD.3dshapes/C_0805.step"
+      (offset (xyz 2.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -458,8 +458,8 @@
       (net 66 "/VIN"))
     (pad "1" smd rect (at 0.889 0 125) (size 2.286 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 66 "/VIN"))
-    (model "${KISYS3DMOD}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-      (at (xyz 0 0 0))
+    (model "${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0805_2012Metric.step"
+      (offset (xyz 2.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -720,8 +720,8 @@
       (net 8 "/+5V"))
     (pad "1" smd rect (at 0.889 0 270) (size 2.286 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 8 "/+5V"))
-    (model "${KISYS3DMOD}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-      (at (xyz 0 0 0))
+    (model "${KISYS3DMOD}/Capacitor_SMD.3dshapes/C_0805_2012Metric.step"
+      (offset (xyz 2.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -757,7 +757,7 @@
       (net 8 "/+5V"))
     (pad "2" thru_hole circle (at 2.5 0 270) (size 1.6 1.6) (drill 0.8) (layers *.Cu *.Mask)
       (net 6 "GND"))
-    (model "${KISYS3DMOD}/Capacitors_THT.3dshapes/CP_Radial_Tantal_D4.5mm_P2.50mm.wrl"
+    (model "${KISYS3DMOD}/Capacitors_THT.3dshapes/CP_Radial_D5.0mm_P2.50mm.step"
       (at (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -964,9 +964,9 @@
       (net 4 "/WRITE"))
     (pad "1" smd rect (at 1.524 0 180) (size 3.5052 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 58 "Net-(D1-Pad1)"))
-    (model "${KISYS3DMOD}/Diodes_THT.3dshapes/D_DO-35_SOD27_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Diode_SMD.3dshapes/D_SOD-123.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -1007,9 +1007,9 @@
       (net 5 "/PARAM"))
     (pad "1" smd rect (at 1.524 0 135) (size 3.5052 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 58 "Net-(D1-Pad1)"))
-    (model "${KISYS3DMOD}/Diodes_THT.3dshapes/D_DO-35_SOD27_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Diode_SMD.3dshapes/D_SOD-123.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -1050,9 +1050,9 @@
       (net 69 "Net-(BT34H1-Pad1)"))
     (pad "1" smd rect (at 1.524 0 180) (size 3.5052 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 61 "/VUSB"))
-    (model "${KISYS3DMOD}/Diodes_THT.3dshapes/D_DO-35_SOD27_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Diode_SMD.3dshapes/D_SOD-123.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -1093,9 +1093,9 @@
       (net 59 "Net-(D4-Pad2)"))
     (pad "1" smd rect (at 1.524 0) (size 3.5052 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 61 "/VUSB"))
-    (model "${KISYS3DMOD}/Diodes_THT.3dshapes/D_DO-35_SOD27_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Diode_SMD.3dshapes/D_SOD-123.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -2982,9 +2982,9 @@
       (net 65 "Net-(RA1-Pad1)"))
     (pad "1" smd rect (at 1.7018 0 90) (size 3.048 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 65 "Net-(RA1-Pad1)"))
-    (model "${KISYS3DMOD}/Resistors_THT.3dshapes/R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Resistors_SMD.3dshapes/R_0805.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -3529,8 +3529,8 @@
       (net 10 "Net-(CA4-Pad1)"))
     (pad "1" smd rect (at 0.889 0 270) (size 2.286 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 10 "Net-(CA4-Pad1)"))
-    (model "${KISYS3DMOD}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-      (at (xyz 0 0 0))
+    (model "${KISYS3DMOD}/Capacitors_SMD.3dshapes/C_0805.step"
+      (offset (xyz 2.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -3572,8 +3572,8 @@
       (net 60 "Net-(C1-Pad1)"))
     (pad "1" smd rect (at 0.889 0 270) (size 2.286 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 60 "Net-(C1-Pad1)"))
-    (model "${KISYS3DMOD}/Capacitor_THT.3dshapes/C_Disc_D5.0mm_W2.5mm_P5.00mm.step"
-      (at (xyz 0 0 0))
+    (model "${KISYS3DMOD}/Capacitors_SMD.3dshapes/C_0805.step"
+      (offset (xyz 2.5 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -4189,9 +4189,9 @@
       (net 70 "Net-(C4-Pad1)"))
     (pad "1" smd rect (at 1.7018 0) (size 3.048 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 70 "Net-(C4-Pad1)"))
-    (model "${KISYS3DMOD}/Resistors_THT.3dshapes/R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Resistors_SMD.3dshapes/R_0805.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -4230,9 +4230,9 @@
       (net 60 "Net-(C1-Pad1)"))
     (pad "1" smd rect (at 1.7018 0 270) (size 3.048 1.27) (layers "B.Cu" "B.Paste" "B.Mask")
       (net 60 "Net-(C1-Pad1)"))
-    (model "${KISYS3DMOD}/Resistors_THT.3dshapes/R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0805_2012Metric.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -4271,9 +4271,9 @@
       (net 66 "/VIN"))
     (pad "1" smd rect (at 1.7018 0 180) (size 3.048 1.27) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 66 "/VIN"))
-    (model "${KISYS3DMOD}/Resistors_THT.3dshapes/R_Axial_DIN0204_L3.6mm_D1.6mm_P7.62mm_Horizontal.wrl"
-      (at (xyz 0 0 0))
-      (scale (xyz 0.393701 0.393701 0.393701))
+    (model "${KISYS3DMOD}/Resistor_SMD.3dshapes/R_0805_2012Metric.step"
+      (offset (xyz 3.75 0 0))
+      (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
   )
@@ -5992,14 +5992,14 @@
   (gr_line (start 163.195 57.15) (end 163.195 59.436) (layer "Eco1.User") (width 0.15))
   (gr_line (start 159.766 57.15) (end 163.195 57.15) (layer "Eco1.User") (width 0.15))
   (gr_line (start 158.623 54.229) (end 159.766 57.15) (layer "Eco1.User") (width 0.15))
-  (gr_line (start 59.563 53.467) (end 59.563 155.702) (layer "Eco1.User") (width 0.15))
+  (gr_line (start 59.563 53.467) (end 59.563 155.702) (layer "Eco1.User") (width 0.01))
   (gr_arc (start 191.573901 92.80526) (end 214.397663 60.703948) (angle -19.3) (layer "F.Fab") (width 0.1) (tstamp 5BEC1FF4))
   (gr_text "Stylish!" (at 197.866 98.171) (layer "F.SilkS") (tstamp 5BB4A349)
     (effects (font (size 5.08 5.08) (thickness 0.762)))
   )
   (gr_line (start 186.563 155.702) (end 186.563 53.467) (layer "Eco1.User") (width 0.05))
   (gr_line (start 59.563 155.702) (end 186.563 155.702) (layer "Eco1.User") (width 0.05))
-  (gr_line (start 186.563 53.467) (end 59.563 53.467) (layer "Eco1.User") (width 0.05))
+  (gr_line (start 186.563 53.467) (end 59.563 53.467) (layer "Eco1.User") (width 0.01))
   (gr_text "SPEAKER" (at 199.31 56.53 -7) (layer "B.Cu") (tstamp 5BEC1FFA)
     (effects (font (size 1.016 1.016) (thickness 0.254)) (justify mirror))
   )
