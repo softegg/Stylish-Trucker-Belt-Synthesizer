@@ -1,6 +1,7 @@
 //#include <gpio.h>
+
 int note_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,PB5,PB6,PB7,PB9,PC13,PC14,PC15,PA0,PA1,PA2,PA3,PA4,PA5};
-int button_pins[]={PB1,PB0,PB10,PA6};
+int button_pins[]={PB10,PB1,PB0,PA6};
 #define NUM_NOTES (25)
 #define NUM_BUTTONS (4)
 
@@ -25,7 +26,7 @@ void setup() {
       pinMode( note_pins[i], INPUT_PULLUP );      
       
   }
-  for(int i=0; i<NUM_BUTTONS;i++)
+  for(int i=0; i<NUM_BUTTONS-1;i++)
   {
       pinMode( button_pins[i], INPUT_PULLUP );      
   }
@@ -53,11 +54,18 @@ void loop()
   }
   Serial.print(" ---- ");
   button=-1;
-  for(int i=0; i<NUM_BUTTONS;i++)
+  for(int i=0; i<NUM_BUTTONS-1;i++)
   {
     if (!digitalRead(button_pins[i]))
     {
-      button = i;
+      if ( button==NUM_BUTTONS-3) 
+      {
+        button = i+1;
+      }
+      else
+      {
+        button = i;
+      }
       Serial.print("#");
     }
     else
@@ -65,6 +73,7 @@ void loop()
       Serial.print(".");
     }
   }
+  
   Serial.print("Counter ");
   Serial.println(counter,DEC);
 

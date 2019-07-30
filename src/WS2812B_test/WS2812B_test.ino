@@ -37,12 +37,14 @@ void setup()
 
 void loop() 
 { 
+  Serial.println("Colorwipe White");  
+  colorWipe(strip.Color(255, 255, 255), 120); // Green
   Serial.println("Colorwipe Green");  
-  colorWipe(strip.Color(0, 255, 0), 40); // Green
+  colorWipe(strip.Color(0, 255, 0), 120); // Green
   Serial.println("Colorwipe Red");  
-  colorWipe(strip.Color(255, 0, 0), 40); // Red
+  colorWipe(strip.Color(255, 0, 0), 120); // Red
   Serial.println("Colorwipe Blue");  
-  colorWipe(strip.Color(0, 0, 255), 40); // Blue
+  colorWipe(strip.Color(0, 0, 255), 120); // Blue
   Serial.println("Rainbow");  
   rainbow(10);
   Serial.println("Rainbow Cycle");  
@@ -54,17 +56,17 @@ void loop()
   Serial.println("Theater Chase Blue");  
   theaterChase(strip.Color(0, 0, 255), 80); // Blue
   Serial.println("Theater Chase Rainbow");  
-  theaterChaseRainbow(80);
+  theaterChaseRainbow(1);
   Serial.println("White Over Rainbow");  
-  whiteOverRainbow(20,75,5);  
+  whiteOverRainbow(20,75,80);  
   Serial.println("Pulse White");  
-  pulseWhite(5); 
+  pulseWhite(10); 
   delay(250);
   Serial.println("Full White");  
   fullWhite();
   delay(250);
   Serial.println("Rainbow Fade to White");  
-  rainbowFade2White(3,3,1);
+  rainbowFade2White(10,3,1);
 }
 
 // Fill the dots one after the other with a color
@@ -238,6 +240,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
             strip.setPixelColor(i, strip.Color(0,0,0, LEDGamma[j] ) );
           }
           strip.show();
+          delay(wait);
         }
 
         delay(2000);
@@ -247,6 +250,7 @@ void rainbowFade2White(uint8_t wait, int rainbowLoops, int whiteLoops) {
             strip.setPixelColor(i, strip.Color(0,0,0, LEDGamma[j] ) );
           }
           strip.show();
+          delay(wait);
         }
   }
 
