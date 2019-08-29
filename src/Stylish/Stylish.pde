@@ -17,6 +17,9 @@ WS2812B strip = WS2812B(NUM_LEDS);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DATA);
 //Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc1(SAW2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
+
+#define NUM_PATCHES (25)
+
 uint8_t gain=0;
 uint8_t patch_number=0;
 uint8_t last_patch_number=0;
@@ -37,7 +40,6 @@ public:
     uint8 bitsize = 5;
     if ( param == 25 )
     {
-      index--;//last value is 4 bits
       bitsize = 3;
     }
     uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
@@ -45,9 +47,9 @@ public:
     uint8_t mask0= ( 1<< bitsize)  - 1; // make mask for low bits;
     value &= mask0; //mask off excess bits
     uint8_t val0 = value;
-    if ( shift => 0 ) // shift left if positive, right if negative
+    if ( shift0 >= 0 ) // shift left if positive, right if negative
     {
-      val0 <<= shift0
+      val0 <<= shift0;
       mask0 <<= shift0; // shift the mask to clear out values too
       values[ byteindex ] &= ~mask0; //clear old bits
       values[ byteindex ] |= val0;   //set new value bits
@@ -59,7 +61,7 @@ public:
     values[ byteindex ]&=~mask0; //clear old bits
     values[ byteindex ]|=val0;   //set new value bits
     //now for 2nd byte stuff
-    int shift1 = 8 - (size + shift0);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
+    int shift1 = 8 - (bitsize + shift0 + 1);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
     uint8_t val1 = value << shift1;       //shift left, extra bits fall out the top  
     uint8_t mask1 = ( 1 << bitsize ) - 1; //rebuild mask
     mask1 <<= shift1;                     //shift it to kill current value
@@ -74,14 +76,13 @@ public:
     uint8 bitsize = 5;
     if ( param == 25 )
     {
-      index--;//last value is 4 bits
       bitsize = 3;
     }
     uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
     int shift0 = 8 - ( ( bitindex & 0x7 ) + bitsize ); // keep low 4 bits for "modulus 8" behavior to get bit index 
     uint8_t mask= ( 1<< bitsize)  - 1; // make mask for low bits;
     uint8_t val = 0;
-    if ( shift => 0 ) // shift left if positive, right if negative
+    if ( shift0 >= 0 ) // shift left if positive, right if negative
     {
       val = values[ byteindex ] >> shift0;
       val &= mask;
@@ -89,12 +90,19 @@ public:
       return( val ); // no error
     }
     //else
-    //mask
-       
-  
+    val = values[ byteindex ] << -shift0;
+    val &= mask;
+    val &= mask << -shift0; //zeros shift in
+    byteindex++;
+    int shift1 = 8 - (bitsize + shift0 + 1);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
+    uint8_t val1 = values[ byteindex ] >> shift1;
+    val1 &= mask >> shift1;
+    val|=val1;
+    return( val );  
   }
 };
 
+patch_t Patch[NUM_PATCHES];
   
 
 //order of operations:
@@ -155,7 +163,7 @@ uint8_t keyboard_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,
 
 enum {PATCH_BUTTON=NUM_NOTES, WRITE_BUTTON, VALUE_BUTTON, MODE_BUTTON};
 
-#define MODE_BUTTON_HACK_MASK ((1<<WDITE_BUTTON)|(1<<VALUE_BUTTON))
+#define MODE_BUTTON_HACK_MASK ((1<<WRITE_BUTTON)|(1<<VALUE_BUTTON))
 #define MODE_BUTTON_MASK (1<<MODE_BUTTON)
 
 typedef void ( *KeyCallback)(uint8_t key);
@@ -274,7 +282,7 @@ void SoundKeyDown(uint8_t key)
 
 void SoundKeyUp()
 {
-  key = NOT_PRESSED;
+  key_down = NOT_PRESSED;
 }
 
 void SoundRetrigger()
@@ -300,14 +308,14 @@ uint8_t GetUIValue()
       return( parameter_number );
       break;
     case S_PARAMETER_VALUE:
-      return( 
+      //return( 
       break;
     case S_MODE_CHANGE:
       break;
     case S_MODE_VALUE:
       break;
     case S_NUM_STATES:
-    default
+    default:
       break;      
   }
 }
@@ -341,7 +349,7 @@ uint8_t SubStateKeyDown(uint8_t key)
     case SS_SELECT_ABORT_DOWN:
     case SS_NUM_STATES:
     default:
-    
+      break;
   }
 }
 
@@ -360,7 +368,7 @@ void SubStateKeyUp(uint8_t key)
     case SS_SELECT_ABORT_DOWN:
     case SS_NUM_STATES:
     default:
-    
+      break;
   }
 }
 
@@ -410,25 +418,25 @@ void ReceiveKeyDown(uint8_t key )
       }
       break;
     case S_PATCH_SELECT:
-      KeySubstateDown(key);
+      SubStateKeyDown(key);
       break;
     case S_PATCH_WRITE:
-      KeySubstateDown(key);
+      SubStateKeyDown(key);
       break;
     case S_PARAMETER_SELECT:
-      KeySubstateDown(key);
+      SubStateKeyDown(key);
       break;
-    case S_VALUE_CHANGE:
-      KeySubstateDown(key);
+    case S_PARAMETER_VALUE:
+      SubStateKeyDown(key);
       break;
     case S_MODE_CHANGE:
-      KeySubstateDown(key);
+      SubStateKeyDown(key);
       break;
     case S_MODE_VALUE:
-      KeySubstateDown(key);
+      SubStateKeyDown(key);
       break;
     default:
-      break:
+      break;
   }  
 }
 
@@ -437,7 +445,7 @@ void ReceiveKeyUp(uint8_t key )
   Serial.print("Key Up ");
   Serial.print(key,DEC);
   Serial.println(".");
-  KeySubstateUp(key);
+  SubStateKeyUp(key);
 }
 
 //Mozzi
@@ -457,15 +465,30 @@ int updateAudio(){
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
   Serial.begin(115200);  
-  //while (!Serial)
-  //{
-  //  digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
-  //  delay(100);         // fast blink
-  //}  
+  while (!Serial)
+  {
+    digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
+    delay(100);         // fast blink
+  }  
   for(uint8_t i=0xA0; i<=0xb3;i++)
   {
     uint8_t utf8char[]={0xe2,0x91,i};
     Serial.write(utf8char,3);
+  }
+  
+  for(uint8_t patchNum=0;patchNum<26;patchNum++)
+  {
+    for( uint8_t paramNum=0; paramNum<27;paramNum++)
+    {
+      Patch[patchNum].Set(paramNum,paramNum);
+      Serial.print("PatchNum:");
+      Serial.print(patchNum, DEC);
+      Serial.print("  ParamNum:");
+      Serial.print(paramNum, DEC);
+      Serial.print("  Value:");
+      Serial.println(Patch[patchNum].Get(paramNum), DEC);
+    }
+    
   }
 
   strip.begin();// Sets up the SPI
@@ -497,23 +520,23 @@ void loop()
   if ((counter%SPEED_DIVIDE)==0)
   {
     uint64_t small_counter = counter/SPEED_DIVIDE;
-    Serial.print(small_counter,DEC);
-    Serial.print(" ");
+//    Serial.print(small_counter,DEC);
+//    Serial.print(" ");
     uint32_t bits=GetStylusKeyBits();
     uint32_t bit = 1;
     for(int i=0;i<NUM_PINS;i++)
     {
       if ( bits & bit )
       {
-        Serial.print("#");
+//        Serial.print("#");
       }
       else
       {
-        Serial.print(".");
+//        Serial.print(".");
       }
       bit<<=1;
     }
-    Serial.println("\e[1;A");
+//    Serial.println("\e[1;A");
     
     //led strip test
     for(int i=0; i< strip.numPixels(); i++) 
