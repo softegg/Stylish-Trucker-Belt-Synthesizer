@@ -1,0 +1,16 @@
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "1 Top Inner - 0.25 Flat End Mill - 1 inch thick.tap" > "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+echo G00  Z0.0000 >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "1 Bottom Inner - 0.25 Flat End Mill - 1.5 inch thick.tap" >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+echo G00  Z0.0000 >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "1 Bottom Outer - 0.25 Flat End Mill - 1.414 inch thick.tap" >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+echo G00  Z0.0000 >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+type "1 Top - 0.25 Flat End Mill - 0.91 inch thick.tap" >> "1 All Parts Roughing - 0.25 Flat End Mill - Bottoms 1.5m tops 1.tap"
+
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "2 Top Inner Smoothing - 0.25 Ball Nose - 1 inch thick.tap" > "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+echo G00  Z0.0000 >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "2 Bottom Inner - 3d Finish - 0.25 Ball End Mill - 1.5 inch thick.tap" >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+echo G00  Z0.0000 >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+sed 's/M02/(^----NEXT FILE---------------------------)/g' "2 Bottom Outer 0.25 Ball Nose - 1.414 inch thick.tap" >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+echo G00  Z0.0000 >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+type "2 Top - 0.25 Ball Nose - 0.91 inch thick.tap" >> "2 All parts Smoothing - 0.25 Ball Nose Mill - Bottoms 1.5 tops 1.tap"
+

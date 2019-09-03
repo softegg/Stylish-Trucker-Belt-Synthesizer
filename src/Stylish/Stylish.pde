@@ -32,74 +32,58 @@ uint8_t current_mode_button = 0;
 class patch_t
 {
 private:
-  uint8_t values[16];
+	uint8_t values[16];
 public:
-  bool Set( uint8_t param, uint8_t value )
-  {
-    uint8_t bitindex = param * 5;
-    uint8 bitsize = 5;
-    if ( param == 25 )
-    {
-      bitsize = 3;
-    }
-    uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
-    int shift0 = 8 - ( ( bitindex & 0x7 ) + bitsize ); // keep low 4 bits for "modulus 8" behavior to get bit index 
-    uint8_t mask0= ( 1<< bitsize)  - 1; // make mask for low bits;
-    value &= mask0; //mask off excess bits
-    uint8_t val0 = value;
-    if ( shift0 >= 0 ) // shift left if positive, right if negative
-    {
-      val0 <<= shift0;
-      mask0 <<= shift0; // shift the mask to clear out values too
-      values[ byteindex ] &= ~mask0; //clear old bits
-      values[ byteindex ] |= val0;   //set new value bits
-      return( false ); // no error
-    }
-    //else if shift is negative, will need two bytes
-    val0 >>= (-shift0); //shift value and mask right... extra bits will be chopped off
-    mask0 >>= (-shift0); // shift the mask to clear out values too
-    values[ byteindex ]&=~mask0; //clear old bits
-    values[ byteindex ]|=val0;   //set new value bits
-    //now for 2nd byte stuff
-    int shift1 = 8 - (bitsize + shift0 + 1);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
-    uint8_t val1 = value << shift1;       //shift left, extra bits fall out the top  
-    uint8_t mask1 = ( 1 << bitsize ) - 1; //rebuild mask
-    mask1 <<= shift1;                     //shift it to kill current value
-    byteindex++;                          //operate on 2nd byte
-    values[ byteindex ]&=~mask1;          //clear old value bits
-    values[ byteindex ]|=val1;            //set new value bits to 2nd byte
-    return( false );                      //no errors, return
-  };
-  uint8_t Get( uint8_t param )
-  {
-    uint8_t bitindex = param * 5;
-    uint8 bitsize = 5;
-    if ( param == 25 )
-    {
-      bitsize = 3;
-    }
-    uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
-    int shift0 = 8 - ( ( bitindex & 0x7 ) + bitsize ); // keep low 4 bits for "modulus 8" behavior to get bit index 
-    uint8_t mask= ( 1<< bitsize)  - 1; // make mask for low bits;
-    uint8_t val = 0;
-    if ( shift0 >= 0 ) // shift left if positive, right if negative
-    {
-      val = values[ byteindex ] >> shift0;
-      val &= mask;
-      
-      return( val ); // no error
-    }
-    //else
-    val = values[ byteindex ] << -shift0;
-    val &= mask;
-    val &= mask << -shift0; //zeros shift in
-    byteindex++;
-    int shift1 = 8 - (bitsize + shift0 + 1);     //need bits in the next byte! Invert our shift. Whatever bits we shifted out, we now shift in
-    uint8_t val1 = values[ byteindex ] >> shift1;
-    val1 &= mask >> shift1;
-    val|=val1;
-    return( val );  
-  }
+	bool Set(uint8_t param, uint8_t value)
+	{
+		uint8_t bitindex = param * 5;
+		uint8_t bitsize = 5;
+		if (param == 25)
+		{
+			bitsize = 3;
+		}
+		uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
+
+		int shift = 16 - ((bitindex & 0x7) + bitsize); // keep low 4 bits for "modulus 8" behavior to get bit index 
+
+		uint16_t work = value << shift;  // shift value into position using 16 bit int.
+		uint16_t mask = (1 << bitsize) - 1;  // create a mask for the proper number of bits
+		mask <<= shift;                   //shift the mask into position
+//		printf("param: %d value:%d bitsize:%d bitindex: %d byteindex:%d shift:%d mask:%016lld work:%016lld ~mask:%016lld ", param, value, bitsize, bitindex, byteindex, shift, ToBinary(mask),ToBinary(work),ToBinary(~mask));
+
+		uint16_t old = (values[byteindex] << 8) | values[byteindex + 1]; //get the data currently in position
+//		printf("old:%016lld ", ToBinary(old));
+		old &= ~mask; //mask off the area where the data needs to go.
+//		printf("old(masked):%016lld ", ToBinary(old));
+
+		work |= old;  //install the old data around the shifted value in the work data
+//		printf("work(combined):%016lld ", ToBinary(work));
+
+		values[byteindex] = work >> 8;        //
+		values[byteindex + 1] = work & 0xFF;
+
+//		printf(" values[%d,%d]=%02x,%02x\n", byteindex, byteindex + 1, values[byteindex], values[byteindex + 1]);
+
+		return(false);                      //no errors, return
+	};
+	uint8_t Get(uint8_t param)
+	{
+		uint8_t bitindex = param * 5;
+		uint8_t bitsize = 5;
+		if (param == 25)
+		{
+			bitsize = 3;
+		}
+		uint8_t byteindex = bitindex >> 3; // divide by 8 to get the byte in "values" array
+		int shift = 16 - ((bitindex & 0x7) + bitsize); // keep low 4 bits for "modulus 8" behavior to get bit index 
+
+		uint16_t work = (values[byteindex] << 8) | values[byteindex + 1]; //get the data currently in position
+		work >>= shift;
+		uint16_t mask = (1 << bitsize) - 1;  // create a mask for the proper number of bits
+		work &= mask;
+//		printf("Get: %d\n", work);
+		return (work);
+	};
 };
 
 patch_t Patch[NUM_PATCHES];
@@ -153,7 +137,7 @@ eUI_SubStates subState = SS_UP;
 
 //stylus keyboard 
 uint8_t keyboard_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,PB5,PB6,PB7,PB9,PC13,PC14,PC15,PA0,PA1,PA2,PA3,PA4,PA5,
-/*buttons */             PB1,PB0,PB10/*,PA6*/};
+/*buttons */             PB10,PB1,PB0,/*,PA6*/};
 
 #define NUM_NOTES (25)
 #define NUM_BUTTONS (3) /*mode button being used for keyboard atm...*/
@@ -342,6 +326,9 @@ uint8_t SubStateKeyDown(uint8_t key)
       }
       else  //selected some other button, abort
       {
+        state = S_PLAY;         // set state
+        subState = SS_PLAY_DOWN;          // set substate
+      
       }
       break;
     case SS_SELECT_PLAYING_VALUE_AUDITION:
@@ -389,9 +376,11 @@ void ReceiveKeyDown(uint8_t key )
       }
       else
       {
+        Serial.println("Button down!");
         switch( key )
         {
           case PATCH_BUTTON:        
+          Serial.println("Patch!");
             last_patch_number = patch_number;   // save the patch number in case of abort
             patch_number_changed = false;       // clear patch change flag
             current_mode_button = PATCH_BUTTON; // save button for comparison in substate code
@@ -399,17 +388,20 @@ void ReceiveKeyDown(uint8_t key )
             subState = SS_SELECT_DOWN;          // set substate
             break;
           case WRITE_BUTTON: 
+            Serial.println("Write!");
             last_patch_number = patch_number;   // save the patch number in case of abort
             current_mode_button = WRITE_BUTTON; // save button for comparison in substate code
             state = S_PATCH_WRITE;              // set state
             subState = SS_SELECT_DOWN;          // set substate
             break;
           case VALUE_BUTTON: 
+            Serial.println("Value!");
             current_mode_button = VALUE_BUTTON; // save button for comparison in substate code
             state = S_PARAMETER_SELECT;         // set state
             subState = SS_SELECT_DOWN;          // set substate
             break;
           case MODE_BUTTON:
+            Serial.println("Mode!");
             current_mode_button = MODE_BUTTON;  // save button for comparison in substate code
             state = S_MODE_CHANGE;              // set state
             subState = SS_SELECT_DOWN;          // set substate
@@ -465,32 +457,12 @@ int updateAudio(){
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
   Serial.begin(115200);  
-  while (!Serial)
+  //while (!Serial)
   {
     digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
     delay(100);         // fast blink
   }  
-  for(uint8_t i=0xA0; i<=0xb3;i++)
-  {
-    uint8_t utf8char[]={0xe2,0x91,i};
-    Serial.write(utf8char,3);
-  }
   
-  for(uint8_t patchNum=0;patchNum<26;patchNum++)
-  {
-    for( uint8_t paramNum=0; paramNum<27;paramNum++)
-    {
-      Patch[patchNum].Set(paramNum,paramNum);
-      Serial.print("PatchNum:");
-      Serial.print(patchNum, DEC);
-      Serial.print("  ParamNum:");
-      Serial.print(paramNum, DEC);
-      Serial.print("  Value:");
-      Serial.println(Patch[patchNum].Get(paramNum), DEC);
-    }
-    
-  }
-
   strip.begin();// Sets up the SPI
   strip.show();// Clears the strip, as by default the strip data is set to all LED's off.
   strip.setBrightness(8);
@@ -501,7 +473,6 @@ void setup() {
 
 
   //Init Stylus keyboard library
-  Serial.println("Stylus Keypad Test");
   StylusKeyboardSetup();
   SetKeyDownCallback(&ReceiveKeyDown);
   SetKeyUpCallback(&ReceiveKeyUp);
@@ -520,23 +491,23 @@ void loop()
   if ((counter%SPEED_DIVIDE)==0)
   {
     uint64_t small_counter = counter/SPEED_DIVIDE;
-//    Serial.print(small_counter,DEC);
-//    Serial.print(" ");
+    Serial.print(small_counter,DEC);
+    Serial.print(" ");
     uint32_t bits=GetStylusKeyBits();
     uint32_t bit = 1;
     for(int i=0;i<NUM_PINS;i++)
     {
       if ( bits & bit )
       {
-//        Serial.print("#");
+        Serial.print("#");
       }
       else
       {
-//        Serial.print(".");
+        Serial.print(".");
       }
       bit<<=1;
     }
-//    Serial.println("\e[1;A");
+    Serial.println("\e[1;A");
     
     //led strip test
     for(int i=0; i< strip.numPixels(); i++) 
