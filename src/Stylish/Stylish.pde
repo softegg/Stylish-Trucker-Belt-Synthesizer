@@ -4,6 +4,8 @@
 
 WS2812B strip = WS2812B(NUM_LEDS);
 
+#include "rgb.h"
+
 
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
@@ -12,6 +14,7 @@ WS2812B strip = WS2812B(NUM_LEDS);
 #include <tables/square_no_alias_2048_int8.h> // square table for oscillator
 
 #include <mozzi_midi.h>
+//#include "printf.h"
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 //Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> osc1(SIN2048_DATA);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DATA);
@@ -26,9 +29,20 @@ uint8_t last_patch_number=0;
 uint8_t parameter_number=0;
 bool patch_number_changed = false;
 uint8_t current_mode_button = 0;
+uint8_t mode_parameter_number=0;
+uint8_t mode_value=0;
+uint8_t parameter_value=0;
+
+uint8_t last_ui_value=0;
 
 // patch structure
 // 26 parameters packed into 
+#define NUM_PATCH_PARAMETERS (26)
+#define LAST_PATCH_PARAMETER_NUMBER (NUM_PATCH_PARAMETERS-1)
+
+uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
+uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
+
 class patch_t
 {
 private:
@@ -38,7 +52,7 @@ public:
 	{
 		uint8_t bitindex = param * 5;
 		uint8_t bitsize = 5;
-		if (param == 25)
+		if (param == LAST_PATCH_PARAMETER_NUMBER)
 		{
 			bitsize = 3;
 		}
@@ -70,7 +84,7 @@ public:
 	{
 		uint8_t bitindex = param * 5;
 		uint8_t bitsize = 5;
-		if (param == 25)
+		if (param == LAST_PATCH_PARAMETER_NUMBER)
 		{
 			bitsize = 3;
 		}
@@ -84,10 +98,29 @@ public:
 //		printf("Get: %d\n", work);
 		return (work);
 	};
+  
+  void GetAllToLocal()
+  {
+    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
+    {
+      LocalPatchData[i] = Get( i );
+    }
+  }
+  
+  void SetAllFromLocal()
+  {
+    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
+    {
+      Set( i, LocalPatchData[i] );
+    }
+  }
 };
 
 patch_t Patch[NUM_PATCHES];
-  
+
+#define NUMBER_MODE_VALUES (25)
+
+uint8_t ModeData[NUMBER_MODE_VALUES];
 
 //order of operations:
 // tap button for thing to change - ring will be a solid color, different for each button
@@ -110,6 +143,17 @@ enum eUI_States {
   S_NUM_STATES
 };
 
+char * UI_State_Strings[]={
+  "S_PLAY",
+  "S_PATCH_SELECT",       
+  "S_PATCH_WRITE",        
+  "S_PARAMETER_SELECT",   
+  "S_PARAMETER_VALUE",    
+  "S_MODE_CHANGE",        
+  "S_MODE_VALUE",         
+  "S_NUM_STATES"  
+};
+
 enum eUI_SubStates {
   SS_UP,
   SS_PLAY_DOWN,
@@ -121,6 +165,18 @@ enum eUI_SubStates {
   SS_NUM_STATES
 };
 
+char * UI_SubState_Strings[] = {
+  "SS_UP",
+  "SS_PLAY_DOWN",
+  "SS_SELECT_DOWN",
+  "SS_SELECT_WAIT_FOR_VALUE",
+  "SS_SELECT_PLAYING_VALUE_AUDITION",
+  "SS_SELECT_DONE_SELECTING_DOWN",
+  "SS_SELECT_ABORT_DOWN",
+  "SS_NUM_STATES"
+};
+
+
 enum eANIM_Bits {
   eANIM_NONE     = 0,
   eANIM_FLASH    = 1,
@@ -129,9 +185,9 @@ enum eANIM_Bits {
   eANIM_SPARKLES = 8
 };
 
-
 eUI_States state = S_PLAY;
 eUI_SubStates subState = SS_UP;
+
 // use #define for CONTROL_RATE, not a constant
 #define CONTROL_RATE 64 // Hz
 
@@ -172,10 +228,44 @@ void SetKeyUpCallback(KeyCallback key_up_callback)
   KeyUpCallback = key_up_callback;
 }
 
+void Set_UI_State(eUI_States _state)
+{
+  state = _state;
+  Serial.printf("Set State: %s\r\n", UI_State_Strings[ state ] );
+}
+
+eUI_States Get_UI_State(bool echo = true);
+
+eUI_States Get_UI_State(bool echo)
+{
+  if ( echo )
+  {
+    Serial.printf("Get State: %s\r\n", UI_State_Strings[ state ] );
+  }
+  return( state );
+}
+
+void Set_UI_SubState(eUI_SubStates _subState)
+{
+  subState = _subState;
+  Serial.printf("Set SubState: %s\r\n", UI_SubState_Strings[ subState ] );
+};
+
+eUI_SubStates Get_UI_SubState(bool echo = true);
+
+eUI_SubStates Get_UI_SubState(bool echo)
+{
+  if ( echo )
+  {
+    Serial.printf("Get SubState: %s\r\n", UI_SubState_Strings[ subState ] );
+  }
+  return( subState );
+};
+
 
 void StylusKeyboardSetup()
 {
-  Serial.println("Stylus Keyboard Setup");
+  Serial.printf("Stylus Keyboard Setup\r\n");
   __IO uint32 *mapr = &AFIO_BASE->MAPR;
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY/*AFIO_DEBUG_NONE*/);
   
@@ -206,10 +296,11 @@ uint8_t StylusKeyboardUpdate()
   }
   //if WRITE and VALUE buttons are pressed, is really MODE button.
   //fix the raw array to reflect this.
-  if ( ( raw_key_bits & MODE_BUTTON_MASK ) == MODE_BUTTON_MASK )
+  if ( ( raw_key_bits & MODE_BUTTON_HACK_MASK ) == MODE_BUTTON_HACK_MASK )
   {
-    raw_key_bits ^= MODE_BUTTON_HACK_MASK;
+    raw_key_bits &= ~MODE_BUTTON_HACK_MASK;
     raw_key_bits |= MODE_BUTTON_MASK;
+    raw_key_down = MODE_BUTTON;
   }
   
   if ( raw_key_down!=raw_last_key_down)
@@ -277,37 +368,120 @@ void SoundRetrigger()
 
 uint8_t GetUIValue()
 {
-  switch ( state )
+  switch ( Get_UI_State() )
   {
     case S_PLAY:
+      Serial.printf("GetUIValue: PLAY key_down = %d\r\n",key_down);
       return (key_down);
       break;
     case S_PATCH_SELECT:
+      Serial.printf("GetUIValue: PATCH_SELECT patch_number = %d\r\n",patch_number);
       return( patch_number );
       break;
     case S_PATCH_WRITE:
+      Serial.printf("GetUIValue: PATCH_WRITE patch_number = %d\r\n",patch_number);
       return( patch_number );
       break;
     case S_PARAMETER_SELECT:
+      Serial.printf("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n",parameter_number);
       return( parameter_number );
       break;
     case S_PARAMETER_VALUE:
-      //return( 
+      Serial.printf("GetUIValue: PARAMETER_VALUE(%d)=%d\r\n",parameter_number, LocalPatchData[ parameter_number ] );
+      return( LocalPatchData[ parameter_number ] );
       break;
     case S_MODE_CHANGE:
+      Serial.printf("GetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n",mode_parameter_number);
+      return( mode_parameter_number );
       break;
     case S_MODE_VALUE:
+      Serial.printf("GetUIValue: MODE_VALUE(%d)=%d\r\n",mode_parameter_number, ModeData[ mode_parameter_number ] );
+      return( ModeData[ mode_parameter_number ] );
       break;
     case S_NUM_STATES:
     default:
+      Serial.printf("ERROR: GetUIValue with invalid UI State\r\n");
+      Get_UI_State();
+      return(0);
       break;      
+  }
+}
+
+void SetUIValue(uint8_t value )
+{
+  switch ( Get_UI_State() )
+  {
+    case S_PLAY:
+      key_down = value;
+      Serial.printf("SetUIValue: PLAY key_down = %d\r\n",key_down);
+      break;
+    case S_PATCH_SELECT:      
+      patch_number = value;
+      Serial.printf("SetUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
+      //copy to synth local unpacked parameters here
+      Patch[patch_number].GetAllToLocal();
+      break;
+    case S_PATCH_WRITE:
+      patch_number = value;
+      Serial.printf("SetUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
+      //copy current patch parameters into new patch area.
+      Patch[patch_number].SetAllFromLocal();
+      break;
+    case S_PARAMETER_SELECT:
+      parameter_number = value;
+      Serial.printf("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
+      break;
+    case S_PARAMETER_VALUE:
+      Serial.printf("SetUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, value);
+      //set local patch value
+      LocalPatchData[ parameter_number ] = value;
+      parameter_value = value;
+      break;
+    case S_MODE_CHANGE:
+      mode_parameter_number = value;
+      Serial.printf("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
+      break;
+    case S_MODE_VALUE:
+      ModeData[ mode_parameter_number ] = value;
+      mode_value = value;
+      Serial.printf("SetUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
+      break;
+    case S_NUM_STATES:
+    default:
+      Serial.printf("ERROR: GetUIValue with invalid UI State\r\n");
+      Get_UI_State();
+      break;      
+  }
+}
+
+void SaveUIValue()
+{
+  last_ui_value = GetUIValue();
+  
+  //for patch write, it will overwrite local patch data to play sound.
+  //keep a copy of the patch for write / abort
+  if ( Get_UI_State() == S_PATCH_WRITE )
+  {
+    memcpy(LocalPatchDataBackup, LocalPatchData, sizeof(LocalPatchData));
+  }
+}
+
+void RestoreUIValue()
+{
+  SetUIValue( last_ui_value );
+
+  //for patch write, it will overwrite local patch data to play sound.
+  //move the patch data backup back to local memory.
+  if ( Get_UI_State() == S_PATCH_WRITE )
+  {
+    memcpy(LocalPatchData, LocalPatchDataBackup, sizeof(LocalPatchData));
   }
 }
 
 
 uint8_t SubStateKeyDown(uint8_t key)
 {
-  switch ( subState )
+  switch ( Get_UI_SubState() )
   {
     case SS_UP:
     case SS_PLAY_DOWN:
@@ -317,44 +491,130 @@ uint8_t SubStateKeyDown(uint8_t key)
       //if it does, should I do something?
       break;    
     case SS_SELECT_WAIT_FOR_VALUE:
-      if ( key <= NUM_NOTES )
+      if ( key < NUM_NOTES )
       {
-          SoundKeyDown(key);
+        //Serial.print("Patch selected:");
+        //Serial.println(patch_number);
+        //patch_number = key;
+        SetUIValue(key);
+        //set patch data here
+        SoundKeyDown(key);
+        Set_UI_SubState(SS_SELECT_PLAYING_VALUE_AUDITION);
       }
       else if ( key == current_mode_button )  //pressed current mode button, so write value
       {
+        //Serial.print("Patch confirmed:");
+        //Serial.println(patch_number);
+        //last_patch_number = patch_number;
+        SaveUIValue();
+        Set_UI_SubState(SS_SELECT_DONE_SELECTING_DOWN);
       }
       else  //selected some other button, abort
       {
-        state = S_PLAY;         // set state
-        subState = SS_PLAY_DOWN;          // set substate
-      
+        //Serial.print("Patch aborted:");
+        //patch_number = last_patch_number;
+        //Serial.println(patch_number);
+        RestoreUIValue();
+        Set_UI_SubState( SS_SELECT_ABORT_DOWN );          // set substate      
       }
       break;
+      
+    //below are set on key down, so probably shouldn't end up here.
     case SS_SELECT_PLAYING_VALUE_AUDITION:
     case SS_SELECT_DONE_SELECTING_DOWN:
     case SS_SELECT_ABORT_DOWN:
+      Serial.printf("ERROR! Got SubStateKeyDown on a state that shouln't get it!\r\n");
+      Get_UI_SubState();
+      break;
     case SS_NUM_STATES:
     default:
+      Serial.printf("ERROR! BAD SUBSTATE In SubStateKeyUp!\r\n");
+      Serial.println(Get_UI_SubState());
       break;
   }
 }
 
+//pick the next state for two stage UI operations.
+void NextStateFirstStage()
+{
+  switch ( Get_UI_State() )
+  {
+    case S_PARAMETER_SELECT:
+      Set_UI_State( S_PARAMETER_VALUE );
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
+      break;
+    case S_MODE_CHANGE:
+      Set_UI_State( S_MODE_VALUE );
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
+      break;
+    case S_PARAMETER_VALUE:
+    case S_MODE_VALUE:
+    case S_PATCH_SELECT:
+    case S_PATCH_WRITE:
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
+      break;
+    case S_PLAY:
+    default:
+      Set_UI_State( S_PLAY );
+      Set_UI_SubState( SS_UP );
+      break;
+  }  
+}
+
+//pick the next state for two stage UI operations.
+void NextStateDoneSelectingUp()
+{
+  switch ( Get_UI_State() )
+  {
+    case S_PARAMETER_SELECT:
+      Set_UI_State( S_PARAMETER_VALUE );
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
+      break;
+    case S_MODE_CHANGE:
+      Set_UI_State( S_MODE_VALUE );
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
+      break;
+    case S_PARAMETER_VALUE:
+    case S_MODE_VALUE:
+    case S_PATCH_SELECT:
+    case S_PATCH_WRITE:
+    case S_PLAY:
+    default:
+      Set_UI_State( S_PLAY );
+      Set_UI_SubState( SS_UP );
+      break;
+  }  
+}
+
 void SubStateKeyUp(uint8_t key)
 {
-  switch ( subState )
+  switch ( Get_UI_SubState() )
   {
     case SS_UP:
     case SS_PLAY_DOWN:
+      Set_UI_SubState( SS_UP );
     case SS_SELECT_DOWN:
-      subState = SS_SELECT_WAIT_FOR_VALUE;
+      Set_UI_SubState( SS_SELECT_WAIT_FOR_VALUE );
       break;
     case SS_SELECT_WAIT_FOR_VALUE:
+      //this should always end up at PLAYING_VALUE, DONE_SELECTING, or SELECT_ABORT
+      break;
     case SS_SELECT_PLAYING_VALUE_AUDITION:
-    case SS_SELECT_DONE_SELECTING_DOWN:
+      NextStateFirstStage();
+      break;
+    case SS_SELECT_DONE_SELECTING_DOWN:      
+      NextStateDoneSelectingUp();
+      break;    
     case SS_SELECT_ABORT_DOWN:
+      //abort always goes to play.
+      //I guess there needs to be cleanup here?
+      Set_UI_State( S_PLAY );
+      Set_UI_SubState( SS_UP );      
     case SS_NUM_STATES:
     default:
+      Serial.printf("ERROR! BAD SUBSTATE In SubStateKeyUp! %d\r\n", Get_UI_SubState());
+      Set_UI_State( S_PLAY );
+      Set_UI_SubState( SS_UP );
       break;
   }
 }
@@ -367,44 +627,46 @@ void ReceiveKeyDown(uint8_t key )
   Serial.print(key,DEC);
   Serial.println(".");
   
-  switch (state )
+  switch ( Get_UI_State() )
   {
     case S_PLAY:
-      if ( key <= NUM_NOTES )
+      if ( key < NUM_NOTES )
       {
         SoundKeyDown(key);
       }
       else
       {
-        Serial.println("Button down!");
+        Serial.printf("Button down!\r\n");
         switch( key )
         {
           case PATCH_BUTTON:        
-          Serial.println("Patch!");
-            last_patch_number = patch_number;   // save the patch number in case of abort
-            patch_number_changed = false;       // clear patch change flag
+          Serial.printf("Patch!\r\n");
+            //last_patch_number = patch_number;   // save the patch number in case of abort
+            //patch_number_changed = false;       // clear patch change flag
+            SaveUIValue();
             current_mode_button = PATCH_BUTTON; // save button for comparison in substate code
-            state = S_PATCH_SELECT;             // set state
-            subState = SS_SELECT_DOWN;          // set substate
+            Set_UI_State( S_PATCH_SELECT );             // set state
+            Set_UI_SubState( SS_SELECT_DOWN );          // set substate
             break;
           case WRITE_BUTTON: 
-            Serial.println("Write!");
-            last_patch_number = patch_number;   // save the patch number in case of abort
+            Serial.printf("Write!\r\n");
+            //last_patch_number = patch_number;   // save the patch number in case of abort
+            SaveUIValue();            
             current_mode_button = WRITE_BUTTON; // save button for comparison in substate code
-            state = S_PATCH_WRITE;              // set state
+            Set_UI_State( S_PATCH_WRITE );              // set state
             subState = SS_SELECT_DOWN;          // set substate
             break;
           case VALUE_BUTTON: 
-            Serial.println("Value!");
+            Serial.printf("Value!\r\n");
             current_mode_button = VALUE_BUTTON; // save button for comparison in substate code
-            state = S_PARAMETER_SELECT;         // set state
-            subState = SS_SELECT_DOWN;          // set substate
+            Set_UI_State( S_PARAMETER_SELECT );         // set state
+            Set_UI_SubState( SS_SELECT_DOWN );          // set substate
             break;
           case MODE_BUTTON:
-            Serial.println("Mode!");
+            Serial.printf("Mode!\r\n");
             current_mode_button = MODE_BUTTON;  // save button for comparison in substate code
-            state = S_MODE_CHANGE;              // set state
-            subState = SS_SELECT_DOWN;          // set substate
+            Set_UI_State( S_MODE_CHANGE );              // set state
+            Set_UI_SubState( SS_SELECT_DOWN );          // set substate
             break;
         }
       }
@@ -453,11 +715,12 @@ int updateAudio(){
 
 
 #define SPEED_DIVIDE (1000)
+#define FLASH_SPEED_DIVIDE (5000)
 
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
   Serial.begin(115200);  
-  //while (!Serial)
+  while (!Serial)
   {
     digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
     delay(100);         // fast blink
@@ -483,6 +746,238 @@ void setup() {
 
 uint64_t counter = 0;
 
+rgb_t Rainbow(uint8_t value, uint8_t max) 
+{
+  int index = value;
+  index *=255;
+  index /=max;
+  index %=256;
+
+  if(index < 85) 
+  {
+    rgb_t out(index * 3, 255 - index * 3, 0);
+    return( out );
+  } 
+  else 
+  {
+    if(index < 170) 
+    {
+     index -= 85;
+     rgb_t out(255 - index * 3, 0, index * 3);
+     return( out );
+    } 
+    else 
+    {
+     index -= 170;
+     rgb_t out(0, index * 3, 255 - index * 3);
+     return( out );
+    }
+  }
+}
+
+const rgb_t rgb_BLACK={0,0,0};
+const rgb_t rgb_WHITE={32,32,32};
+const rgb_t rgb_GREY={4,4,4};
+const rgb_t rgb_RED={16,0,0};
+const rgb_t rgb_GREEN={0,255,0};
+const rgb_t rgb_BLUE={0,0,255};
+const rgb_t rgb_YELLOW={32,32,0};
+const rgb_t rgb_PURPLE={255,0,255};
+const rgb_t rgb_CYAN={0,32,63};
+
+rgb_t workPixels[ NUM_LEDS ];
+
+void AnimPixelsClear()
+{
+  memset(workPixels,0,sizeof(workPixels));
+};
+
+void AnimPixelsFadeSub(uint8_t decrement)
+{
+  for( uint8_t i=0; i< NUM_LEDS; i++)
+  {
+    workPixels[i]-=rgb_t(decrement,decrement,decrement);
+  }
+}
+
+void AnimPixelsSpread(uint16_t mult)
+{
+  for( uint8_t i=0; i< NUM_LEDS; i++)
+  {
+    rgb_t pixel = workPixels[i] ;
+    pixel *= mult;
+    workPixels[i] = pixel;
+  }
+}
+
+void AnimPixelSet( uint8_t num, rgb_t &val )
+{
+  workPixels[num]= val;
+
+};
+
+void AnimPixelAddRange(const uint8_t start, uint8_t end, const rgb_t &val )
+{
+  for( uint8_t i=start; i<=end; i++ )
+  {
+    workPixels[i%NUM_LEDS]+=val;
+  }
+};
+
+//shows a value from 0 to max by lighting up that portion of LEDs
+// tip color is "val", trail is "tail"
+void AnimPixelAddValue(const uint8_t value, const uint8_t max, const rgb_t &color, const rgb_t &tail)
+{
+  int top = (NUM_LEDS * (int)value) / (int)max;
+  top %= NUM_LEDS;
+  for( uint8_t i=0; i < top; i++)
+  {
+    workPixels[i]+=tail;
+  }
+  workPixels[top]+=color;
+};
+
+void AnimSetStrip()
+{
+  for(int i=0; i< strip.numPixels(); i++) 
+  {
+    strip.setPixelColor((i+(NUM_LEDS/2))%NUM_LEDS, workPixels[i].r, workPixels[i].g, workPixels[i].b);
+    //Serial.printf("%d->%d,%d,%d\r\n",i, workPixels[i].r, workPixels[i].g, workPixels[i].b);
+  }
+  strip.show();
+};
+
+void AnimUpdate()
+{
+  eUI_States _state = Get_UI_State( false );
+
+
+  //bool flash = ((counter%FLASH_SPEED_DIVIDE)==0);
+  int flash = (counter / FLASH_SPEED_DIVIDE) % 4;
+  
+  if (( _state == S_PARAMETER_VALUE ) || ( _state == S_MODE_VALUE ) )
+  {
+    flash = (counter / FLASH_SPEED_DIVIDE) % 6;
+  }
+  
+    
+  if ((counter%SPEED_DIVIDE)==0)
+  {
+    //Serial.printf("counter: %d DIVIDE %d FLASH %d %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE, flash);
+    //AnimPixelsClear();
+    //AnimPixelsFadeSub(16);
+    AnimPixelsSpread(160);
+    if ((flash==0) || ( _state == S_PLAY ) )
+    {
+      switch ( _state )
+      {
+        case S_PLAY:
+        {
+          if (gain > 0 )
+          {
+            //AnimPixelAddValue(key_down,NUM_NOTES,rgb_RED,rgb_BLACK);
+            //AnimPixelAddValue(last_key_down,NUM_NOTES,rgb_BLUE,rgb_BLACK);
+            //AnimPixelAddValue(raw_key_down,NUM_NOTES,rgb_GREEN,rgb_BLACK);
+            rgb_t color = Rainbow(last_key_played,NUM_NOTES);
+            color *= (uint16_t) gain;
+            AnimPixelAddValue(last_key_played,NUM_NOTES,color,rgb_BLACK);
+          }
+          else
+          {
+            uint8_t small_counter = counter / SPEED_DIVIDE;
+            
+            //small_counter %= NUM_LEDS;
+            rgb_t color = Rainbow(small_counter,NUM_LEDS-2);
+            AnimPixelAddValue(small_counter,NUM_LEDS,color,rgb_BLACK);
+            
+          }
+            
+          break;
+        }
+        case S_PATCH_SELECT:
+          AnimPixelAddRange(0,NUM_LEDS-1,rgb_BLUE);
+          break;
+        case S_PATCH_WRITE:
+          AnimPixelAddRange(0,NUM_LEDS,rgb_RED);
+          break;
+        case S_PARAMETER_SELECT:
+          AnimPixelAddRange(0,NUM_LEDS/2,rgb_GREEN);
+          break;
+        case S_PARAMETER_VALUE:
+          AnimPixelAddRange(NUM_LEDS/2,NUM_LEDS,rgb_GREEN);
+          break;
+        case S_MODE_CHANGE:
+          AnimPixelAddRange(0,NUM_LEDS/2,rgb_YELLOW);
+          break;
+        case S_MODE_VALUE:
+          AnimPixelAddRange(NUM_LEDS/2,NUM_LEDS,rgb_YELLOW);
+          break;
+        default:
+          break;
+      }  
+    }
+    else if ( flash==2)
+    {
+    //Serial.printf("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
+      switch ( _state )
+      {
+        case S_PLAY:
+        {
+          break;
+        }
+        case S_PATCH_SELECT:
+          AnimPixelAddValue(patch_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_PATCH_WRITE:
+          AnimPixelAddValue(patch_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_PARAMETER_SELECT:
+          break;
+        case S_PARAMETER_VALUE:
+          AnimPixelAddValue(parameter_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_MODE_CHANGE:
+          break;
+        case S_MODE_VALUE:
+          AnimPixelAddValue(mode_parameter_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        default:
+          break;
+      }  
+    }
+    else if ( flash==4)
+    {
+    //Serial.printf("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
+      switch ( _state )
+      {
+        case S_PLAY:
+        {
+          break;
+        }
+        case S_PATCH_SELECT:
+          AnimPixelAddValue(patch_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_PATCH_WRITE:
+          AnimPixelAddValue(patch_number,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_PARAMETER_SELECT:
+          break;
+        case S_PARAMETER_VALUE:
+          AnimPixelAddValue(parameter_value,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        case S_MODE_CHANGE:
+          break;
+        case S_MODE_VALUE:
+          AnimPixelAddValue(mode_value,NUM_NOTES,rgb_WHITE,rgb_GREY);
+          break;
+        default:
+          break;
+      }  
+    }
+    AnimSetStrip();
+  }
+};
+
 void loop() 
 {
   StylusKeyboardUpdate();
@@ -495,7 +990,7 @@ void loop()
     Serial.print(" ");
     uint32_t bits=GetStylusKeyBits();
     uint32_t bit = 1;
-    for(int i=0;i<NUM_PINS;i++)
+    for(int i=0;i<NUM_PINS+1;i++)
     {
       if ( bits & bit )
       {
@@ -508,8 +1003,10 @@ void loop()
       bit<<=1;
     }
     Serial.println("\e[1;A");
+    AnimUpdate();
     
     //led strip test
+/*
     for(int i=0; i< strip.numPixels(); i++) 
     {
       uint8_t r=0,g=0,b=0;
@@ -536,6 +1033,8 @@ void loop()
       strip.setPixelColor( i, r, g, b );
     }
     strip.show();
+*/
+    
     if ( key==NOT_PRESSED )
     {
       if ( gain > 8 )
