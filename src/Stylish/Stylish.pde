@@ -14,6 +14,8 @@ WS2812B strip = WS2812B(NUM_LEDS);
 #include <tables/square_no_alias_2048_int8.h> // square table for oscillator
 
 #include <mozzi_midi.h>
+#include <mozzi_rand.h>
+#include <ADSR.h>
 //#include "printf.h"
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 //Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> osc1(SIN2048_DATA);
@@ -21,9 +23,22 @@ Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DAT
 //Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc1(SAW2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
 
+// use #define for CONTROL_RATE, not a constant
+//#define CONTROL_RATE 64 // Hz
+
+#define CONTROL_RATE 256 // faster than usual to help smooth CONTROL_RATE adsr interpolation (next())
+
+ADSR <CONTROL_RATE, CONTROL_RATE> envelope;
+
 #define NUM_PATCHES (25)
 
 uint8_t gain=0;
+uint8_t note1_ofs=36;
+uint8_t note2_ofs=43;
+float   fine_freq1=-0.1;
+float   fine_freq2=0.1;
+uint8_t noise_max;
+
 uint8_t patch_number=0;
 uint8_t last_patch_number=0;
 uint8_t parameter_number=0;
@@ -34,11 +49,54 @@ uint8_t mode_value=0;
 uint8_t parameter_value=0;
 
 uint8_t last_ui_value=0;
+bool note_off_processed = false;
 
 // patch structure
 // 26 parameters packed into 
 #define NUM_PATCH_PARAMETERS (26)
 #define LAST_PATCH_PARAMETER_NUMBER (NUM_PATCH_PARAMETERS-1)
+
+enum e_PATCH_WAVEFORMS
+{
+  PPW_SAW,
+  PPW_SQUARE,
+  PPW_SINE,
+};
+
+enum ePATCH_PARAMS
+{
+  PP_WAVE1,       // waveform + octave
+  PP_NOTE1,       // note
+  PP_WAVE2,       // waveform + octave
+  PP_NOTE2,       // note
+  PP_NOISE,       // amount of noise
+  
+  PP_DETUNE,      // fine pitch difference between oscillators   
+  PP_ATTACK,      // ADSR envelope
+  PP_DECAY,       // ADSR envelope
+  PP_SUSTAIN,     // ADSR envelope
+  PP_RELEASE,     // ADSR envelope
+  
+  PP_FILTER_Q,    // Filter quality  
+  PP_FILTER_R,    // filter resonance  
+  PP_LFO_WAVE,    // Waveform for LFO
+  PP_LFO_FREQ,    // Frequency for LFO
+  PP_LFO_RAMP,    // start speed of LFO
+  PP_PULSE_WIDTH, // pulse width for square waves
+  
+  PP_ENV_FILTER,  // amount of envelope applied to filter  
+  PP_ENV_PITCH,   // amount of envelope applied to pitch of oscillators
+  PP_ENV_PULSE_WIDTH, //amount of envelope to pulse width
+  PP_ENV_NOISE,   // amount of envelope to noise
+  PP_LFO_FILTER,  // amount of LFO applied to filter
+
+  PP_LFO_PITCH,   // amount of LFO applied to pitch
+  PP_LFO_VOLUME,  // amount of LFO applied to volume
+  PP_LFO_PULSE_WIDTH, //amount of LFO to pulse width
+  PP_LFO_NOISE,   // amount of LFO to noise
+  PP_BALANCE,     // relative volume of wave 1 to wave 2
+  PP_NUM_PARAMETERS  
+};
 
 uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
 uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
@@ -113,10 +171,45 @@ public:
     {
       Set( i, LocalPatchData[i] );
     }
-  }
+    Serial.printf("Patch[%d].values=\r\n{",patch_number);
+    for( uint8_t i=0; i < 16; i++ )
+    {
+      Serial.printf("0x%02X,",values[i]);
+    }
+  }  
 };
 
-patch_t Patch[NUM_PATCHES];
+uint8_t internal_patch_data[25][16]={
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x70,0x1C,0x74,0x90,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x60,0x18,0x7F,0x00,0x23,0x59,0xC0,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0xCF,0x11,0x50,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x68,0x14,0x05,0x14,0x10,0x05,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00}
+};
+
+patch_t * Patch = (patch_t *) internal_patch_data;
+//[NUM_PATCHES];
+
 
 #define NUMBER_MODE_VALUES (25)
 
@@ -188,9 +281,6 @@ enum eANIM_Bits {
 eUI_States state = S_PLAY;
 eUI_SubStates subState = SS_UP;
 
-// use #define for CONTROL_RATE, not a constant
-#define CONTROL_RATE 64 // Hz
-
 //stylus keyboard 
 uint8_t keyboard_pins[]={PB12,PB13,PB14,PB15,PA8,PA9,PA10,PA6,PB11,PA15,PB3,PB4,PB5,PB6,PB7,PB9,PC13,PC14,PC15,PA0,PA1,PA2,PA3,PA4,PA5,
 /*buttons */             PB10,PB1,PB0,/*,PA6*/};
@@ -217,6 +307,127 @@ uint8_t last_key_played = NOT_PRESSED;
 KeyCallback KeyDownCallback=NULL;
 KeyCallback KeyUpCallback=NULL;
 uint32_t stable_counter=0;
+
+int8_t Noise()
+{
+  return( rand(noise_max) );
+}
+
+const unsigned int AttackTimes[25]={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
+const unsigned int DecayTimes[25] ={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
+//sets values in local patch data (unpacked) array
+//and updates system stuff to implement the change
+void SetLocalPatchData(uint8_t param, uint8_t value)
+{
+  LocalPatchData[param]=value;
+  switch(param)
+  {
+    case PP_WAVE1:       // waveform + octave
+    case PP_NOTE1:       // note
+    {
+      uint8_t oct = LocalPatchData[PP_WAVE1]/3;
+      uint8_t wave = LocalPatchData[PP_WAVE1]%3;
+      switch ( wave )
+      {
+        case PPW_SAW:
+          osc1.setTable( SAW2048_DATA );
+          break;
+        case PPW_SQUARE:
+          osc1.setTable( SQUARE_NO_ALIAS_2048_DATA );
+          break;
+        case PPW_SINE:
+        default:
+          osc1.setTable( SIN2048_DATA );
+          break;
+      }
+      note1_ofs = LocalPatchData[PP_NOTE1]+oct*12;      
+      break;
+    }
+    case PP_WAVE2:       // waveform + octave
+    case PP_NOTE2:       // note
+    {
+      uint8_t oct = LocalPatchData[PP_WAVE2]/3;
+      uint8_t wave = LocalPatchData[PP_WAVE2]%3;
+      switch ( wave )
+      {
+        case PPW_SAW:
+          osc2.setTable( SAW2048_DATA );
+          break;
+        case PPW_SQUARE:
+          osc2.setTable( SQUARE_NO_ALIAS_2048_DATA );
+          break;
+        case PPW_SINE:
+        default:
+          osc2.setTable( SIN2048_DATA );
+          break;
+      }
+      note2_ofs = LocalPatchData[PP_NOTE2]+oct*12;      
+      break;
+    }
+    case PP_NOISE:       // amount of noise
+      noise_max = value * 10; // close enough...
+      Serial.printf("Noise:%d noise_max:%d\n",value,noise_max);
+      break;  
+    case PP_DETUNE:      // fine pitch difference between oscillators   
+    {
+      float detune_amt = (float) value / 51.0f;
+      fine_freq1 = detune_amt;
+      fine_freq2 = -1.0 *detune_amt;
+      break;
+    }
+    case PP_ATTACK:      // ADSR envelope
+      envelope.setAttackLevel(255);
+      envelope.setAttackTime(AttackTimes[value]);
+      Serial.printf("Attack: %d = %dms\r\n",value, AttackTimes[value]);      
+      break;
+    case PP_DECAY:       // ADSR envelope
+      envelope.setDecayLevel(LocalPatchData[PP_SUSTAIN]*10);
+      envelope.setDecayTime(DecayTimes[value]);    
+      Serial.printf("Decay: %d = %dms\r\n",value, AttackTimes[value]);      
+      break;
+    case PP_SUSTAIN:     // ADSR envelope
+      envelope.setSustainLevel( value*10 );
+      envelope.setDecayLevel( value*10 );
+      envelope.setSustainTime(0xFFFFFFFF);
+      Serial.printf("Sustain: %d = %d\r\n",value, value*10);            
+      break;
+    case PP_RELEASE:     // ADSR envelope
+      envelope.setReleaseLevel(0);
+      envelope.setReleaseTime(DecayTimes[value]);
+      Serial.printf("Release: %d = %dms\r\n",value, AttackTimes[value]);            
+      break;
+    case PP_FILTER_Q:    // Filter quality  
+    case PP_FILTER_R:    // filter resonance  
+    case PP_LFO_WAVE:    // Waveform for LFO
+    case PP_LFO_FREQ:    // Frequency for LFO
+    case PP_LFO_RAMP:    // start speed of LFO
+    case PP_PULSE_WIDTH: // pulse width for square waves
+  
+    case PP_ENV_FILTER:  // amount of envelope applied to filter  
+    case PP_ENV_PITCH:   // amount of envelope applied to pitch of oscillators
+    case PP_ENV_PULSE_WIDTH: //amount of envelope to pulse width
+    case PP_ENV_NOISE:   // amount of envelope to noise
+    case PP_LFO_FILTER:  // amount of LFO applied to filter
+
+    case PP_LFO_PITCH:   // amount of LFO applied to pitch
+    case PP_LFO_VOLUME:  // amount of LFO applied to volume
+    case PP_LFO_PULSE_WIDTH: //amount of LFO to pulse width
+    case PP_LFO_NOISE:   // amount of LFO to noise
+    case PP_BALANCE:     // relative volume of wave 1 to wave 2
+    case PP_NUM_PARAMETERS:
+    default:
+      break;
+  }
+}
+
+//process every parameter in the local patch data
+void UpdateAllLocalPatchData()
+{
+  for (uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
+  {
+    SetLocalPatchData( i, LocalPatchData[ i ] );
+  }
+}
 
 void SetKeyDownCallback(KeyCallback key_down_callback)
 {
@@ -350,14 +561,18 @@ uint32_t GetStylusKeyBits()
 void SoundKeyDown(uint8_t key)
 {
   last_key_played = key;
-  osc1.setFreq(mtof(float(key+36)));
-  osc2.setFreq(mtof(float(key+43)));
-  gain = 255;        
+  osc1.setFreq(mtof(float(key+note1_ofs)+fine_freq1));
+  osc2.setFreq(mtof(float(key+note2_ofs)+fine_freq2));
+  envelope.noteOn();
+  Serial.printf("Note on:%d \r\n",key);
+//  gain = 255;        
 }
 
 void SoundKeyUp()
 {
-  key_down = NOT_PRESSED;
+  //key_down = NOT_PRESSED;
+  envelope.noteOff();
+  Serial.printf("Note off\r\n");
 }
 
 void SoundRetrigger()
@@ -420,6 +635,7 @@ void SetUIValue(uint8_t value )
       Serial.printf("SetUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
       //copy to synth local unpacked parameters here
       Patch[patch_number].GetAllToLocal();
+      UpdateAllLocalPatchData();
       break;
     case S_PATCH_WRITE:
       patch_number = value;
@@ -429,16 +645,19 @@ void SetUIValue(uint8_t value )
       break;
     case S_PARAMETER_SELECT:
       parameter_number = value;
+      parameter_value = LocalPatchData[ parameter_number ];
       Serial.printf("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
       break;
     case S_PARAMETER_VALUE:
       Serial.printf("SetUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, value);
       //set local patch value
-      LocalPatchData[ parameter_number ] = value;
+      //LocalPatchData[ parameter_number ] = value;
+      SetLocalPatchData( parameter_number, value );
       parameter_value = value;
       break;
     case S_MODE_CHANGE:
       mode_parameter_number = value;
+      mode_value = ModeData[ mode_parameter_number ];
       Serial.printf("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
       break;
     case S_MODE_VALUE:
@@ -475,6 +694,7 @@ void RestoreUIValue()
   if ( Get_UI_State() == S_PATCH_WRITE )
   {
     memcpy(LocalPatchData, LocalPatchDataBackup, sizeof(LocalPatchData));
+    UpdateAllLocalPatchData();
   }
 }
 
@@ -700,17 +920,21 @@ void ReceiveKeyUp(uint8_t key )
   Serial.print(key,DEC);
   Serial.println(".");
   SubStateKeyUp(key);
+  //SoundKeyUp();
 }
 
 //Mozzi
 
 void updateControl(){
   // put changing controls in here
+  envelope.update();
+  gain = envelope.next();
 }
 
 
 int updateAudio(){
-  return ((osc1.next()+osc2.next())*gain)>>9; // return an int signal centred around 0
+  int osc2value = osc2.next();
+  return ((osc1.next()+osc2value+(osc2value*Noise()>>7))*gain)>>9; // return an int signal centred around 0
 }
 
 
@@ -720,11 +944,11 @@ int updateAudio(){
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
   Serial.begin(115200);  
-  while (!Serial)
-  {
-    digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
-    delay(100);         // fast blink
-  }  
+//  while (!Serial)
+//  {
+//    digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
+//    delay(100);         // fast blink
+//  }  
   
   strip.begin();// Sets up the SPI
   strip.show();// Clears the strip, as by default the strip data is set to all LED's off.
@@ -733,6 +957,8 @@ void setup() {
   startMozzi(CONTROL_RATE); // :)
   osc1.setFreq(440); // set the frequency
   osc2.setFreq(440); // set the frequency
+  
+  
 
 
   //Init Stylus keyboard library
@@ -1035,9 +1261,14 @@ void loop()
     strip.show();
 */
     
-    if ( key==NOT_PRESSED )
+    if ( key == NOT_PRESSED )
     {
-      if ( gain > 8 )
+      if (!note_off_processed )
+      {
+        SoundKeyUp();
+        note_off_processed = true;
+      }
+/*      if ( gain > 8 )
       {
         gain-=8;
       }
@@ -1045,6 +1276,11 @@ void loop()
       {
         gain = 0;
       }
+*/    
+    }
+    else
+    {
+      note_off_processed = false;
     }
   }  
   
