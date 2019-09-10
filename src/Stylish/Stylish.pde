@@ -12,13 +12,14 @@ WS2812B strip = WS2812B(NUM_LEDS);
 #include <tables/sin2048_int8.h> // sine table for oscillator
 #include <tables/saw2048_int8.h> // saw table for oscillator
 #include <tables/square_no_alias_2048_int8.h> // square table for oscillator
+#include <LowPassFilter.h>
 
 #include <mozzi_midi.h>
 #include <mozzi_rand.h>
 #include <ADSR.h>
 //#include "printf.h"
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
-//Oscil <SIN2048_NUM_CELLS, AUDIO_RATE> osc1(SIN2048_DATA);
+Oscil <SIN2048_NUM_CELLS, CONTROL_RATE> lfo(SIN2048_DATA);
 Oscil <SQUARE_NO_ALIAS_2048_NUM_CELLS, AUDIO_RATE> osc1(SQUARE_NO_ALIAS_2048_DATA);
 //Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc1(SAW2048_DATA);
 Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
@@ -30,6 +31,8 @@ Oscil <SAW2048_NUM_CELLS, AUDIO_RATE> osc2(SAW2048_DATA);
 
 ADSR <CONTROL_RATE, CONTROL_RATE> envelope;
 
+LowPassFilter lpf;
+
 #define NUM_PATCHES (25)
 
 uint8_t gain=0;
@@ -38,6 +41,8 @@ uint8_t note2_ofs=43;
 float   fine_freq1=-0.1;
 float   fine_freq2=0.1;
 uint8_t noise_max;
+uint8_t filter_q=0;
+uint8_t filter_f=0;
 
 uint8_t patch_number=0;
 uint8_t last_patch_number=0;
@@ -77,8 +82,8 @@ enum ePATCH_PARAMS
   PP_SUSTAIN,     // ADSR envelope
   PP_RELEASE,     // ADSR envelope
   
-  PP_FILTER_Q,    // Filter quality  
-  PP_FILTER_R,    // filter resonance  
+  PP_FILTER_Q,    // Filter resonance  
+  PP_FILTER_F,    // filter frequency  
   PP_LFO_WAVE,    // Waveform for LFO
   PP_LFO_FREQ,    // Frequency for LFO
   PP_LFO_RAMP,    // start speed of LFO
@@ -100,6 +105,34 @@ enum ePATCH_PARAMS
 
 uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
 uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
+
+uint8_t internal_patch_data[25][16]={
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x70,0x1C,0x74,0x90,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x60,0x18,0x7F,0x00,0x23,0x59,0xC0,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0xCF,0x11,0x50,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x68,0x14,0x05,0x14,0x10,0x05,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00}
+};
 
 class patch_t
 {
@@ -157,55 +190,39 @@ public:
 		return (work);
 	};
   
-  void GetAllToLocal()
+  void Echo()
   {
-    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
-    {
-      LocalPatchData[i] = Get( i );
-    }
-  }
-  
-  void SetAllFromLocal()
-  {
-    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
-    {
-      Set( i, LocalPatchData[i] );
-    }
-    Serial.printf("Patch[%d].values=\r\n{",patch_number);
+    uint32_t patch_num_calculate = ( (uint32_t) internal_patch_data - (uint32_t) this ) / 16;
+    
+    Serial.printf("Patch[%d].values=\r\n{",patch_num_calculate);
     for( uint8_t i=0; i < 16; i++ )
     {
       Serial.printf("0x%02X,",values[i]);
     }
+  }
+  
+  void GetAllToLocal()
+  {
+    Serial.printf("GetAllToLocal\r\n");
+    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
+    {
+      LocalPatchData[i] = Get( i );
+    }
+    Echo();
+  }
+  
+  void SetAllFromLocal()
+  {
+    Serial.printf("SetAllFromLocal\r\n");
+    for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
+    {
+      Set( i, LocalPatchData[i] );
+    }
+    Echo();
   }  
 };
 
-uint8_t internal_patch_data[25][16]={
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x70,0x1C,0x74,0x90,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x60,0x18,0x7F,0x00,0x23,0x59,0xC0,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0xCF,0x11,0x50,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x68,0x14,0x05,0x14,0x10,0x05,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00}
-};
+
 
 patch_t * Patch = (patch_t *) internal_patch_data;
 //[NUM_PATCHES];
@@ -307,6 +324,7 @@ uint8_t last_key_played = NOT_PRESSED;
 KeyCallback KeyDownCallback=NULL;
 KeyCallback KeyUpCallback=NULL;
 uint32_t stable_counter=0;
+uint16_t env_to_filter=0;
 
 int8_t Noise()
 {
@@ -315,6 +333,22 @@ int8_t Noise()
 
 const unsigned int AttackTimes[25]={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
 const unsigned int DecayTimes[25] ={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
+const float LFOFreqencies[25]={0.1f,0.2f,0.3f,0.4f,0.5f, 0.6f,0.7f,0.8f,0.9,1.0f, 1.5f,1.6667f,2.0f,2.2167f,2.3333f, 2.6667f,3.0f,3.3333f, 3.6667f,4.0f, 6.0f,8.0f,10.0f,15.0f,20.0f};
+
+uint8_t MapValToByte( uint8_t value, uint8_t min=0, uint8_t max=255 );
+
+uint8_t MapValToByte( uint8_t value, uint8_t min, uint8_t max )
+{
+  //return ( (value*10)+(value*3/5) );
+  float work = (float)max - (float) min;
+  work /=25.0f;
+  work *= (float) value;
+  work += (float) min;
+  if ( work > 255.0f ) work = 255.0f;
+  else if (work < 0.0f ) work = 0.0f;
+  return( (uint8_t) work );  
+}
+
 //sets values in local patch data (unpacked) array
 //and updates system stuff to implement the change
 void SetLocalPatchData(uint8_t param, uint8_t value)
@@ -381,29 +415,66 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
       Serial.printf("Attack: %d = %dms\r\n",value, AttackTimes[value]);      
       break;
     case PP_DECAY:       // ADSR envelope
-      envelope.setDecayLevel(LocalPatchData[PP_SUSTAIN]*10);
+      envelope.setDecayLevel(MapValToByte(LocalPatchData[PP_SUSTAIN]));
       envelope.setDecayTime(DecayTimes[value]);    
       Serial.printf("Decay: %d = %dms\r\n",value, AttackTimes[value]);      
       break;
     case PP_SUSTAIN:     // ADSR envelope
-      envelope.setSustainLevel( value*10 );
-      envelope.setDecayLevel( value*10 );
+    {
+      uint8_t level = MapValToByte(value);
+      envelope.setSustainLevel( level );
+      envelope.setDecayLevel( level );
       envelope.setSustainTime(0xFFFFFFFF);
-      Serial.printf("Sustain: %d = %d\r\n",value, value*10);            
+      Serial.printf("Sustain: %d = %d\r\n",value, level);            
       break;
+    }
     case PP_RELEASE:     // ADSR envelope
       envelope.setReleaseLevel(0);
       envelope.setReleaseTime(DecayTimes[value]);
       Serial.printf("Release: %d = %dms\r\n",value, AttackTimes[value]);            
       break;
-    case PP_FILTER_Q:    // Filter quality  
-    case PP_FILTER_R:    // filter resonance  
+    case PP_FILTER_Q:    // Filter resonance
+      filter_q = MapValToByte(value,255,1);
+      lpf.setResonance(filter_q);
+      Serial.printf("Filter Resonance:%d %d\r\n",value,filter_q);
+      break;
+    case PP_FILTER_F:    // filter frequency  
+      filter_f = MapValToByte(value,255,1);
+      lpf.setCutoffFreq(filter_f);
+      Serial.printf("Filter Frequency:%d %d\r\n",value, filter_f);
+      break;
     case PP_LFO_WAVE:    // Waveform for LFO
+    {
+      uint8_t wave = LocalPatchData[PP_WAVE2]%3;
+      switch ( wave )
+      {
+        case PPW_SAW:
+          lfo.setTable( SAW2048_DATA );
+          break;
+        case PPW_SQUARE:
+          lfo.setTable( SQUARE_NO_ALIAS_2048_DATA );
+          break;
+        case PPW_SINE:
+        default:
+          lfo.setTable( SIN2048_DATA );
+          break;
+      }
+      break;
+    }
     case PP_LFO_FREQ:    // Frequency for LFO
+    {
+      lfo.setFreq(LFOFreqencies[value]);
+      break;
+    }
     case PP_LFO_RAMP:    // start speed of LFO
     case PP_PULSE_WIDTH: // pulse width for square waves
   
     case PP_ENV_FILTER:  // amount of envelope applied to filter  
+    {
+      env_to_filter= MapValToByte(value,0,255);
+      Serial.printf("Envelope to Filter: %d %d\r\n",value, env_to_filter);
+      break;
+    }
     case PP_ENV_PITCH:   // amount of envelope applied to pitch of oscillators
     case PP_ENV_PULSE_WIDTH: //amount of envelope to pulse width
     case PP_ENV_NOISE:   // amount of envelope to noise
@@ -572,7 +643,7 @@ void SoundKeyUp()
 {
   //key_down = NOT_PRESSED;
   envelope.noteOff();
-  Serial.printf("Note off\r\n");
+  //Serial.printf("Note off\r\n");
 }
 
 void SoundRetrigger()
@@ -581,6 +652,7 @@ void SoundRetrigger()
 }
 
 
+//fetch the value for current UI state
 uint8_t GetUIValue()
 {
   switch ( Get_UI_State() )
@@ -622,6 +694,7 @@ uint8_t GetUIValue()
   }
 }
 
+//set the value for current UI state on value change
 void SetUIValue(uint8_t value )
 {
   switch ( Get_UI_State() )
@@ -641,12 +714,14 @@ void SetUIValue(uint8_t value )
       patch_number = value;
       Serial.printf("SetUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
       //copy current patch parameters into new patch area.
-      Patch[patch_number].SetAllFromLocal();
+      Patch[patch_number].GetAllToLocal();
+      UpdateAllLocalPatchData();
+//      Patch[patch_number].SetAllFromLocal();
       break;
     case S_PARAMETER_SELECT:
       parameter_number = value;
       parameter_value = LocalPatchData[ parameter_number ];
-      Serial.printf("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
+      Serial.printf("SetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
       break;
     case S_PARAMETER_VALUE:
       Serial.printf("SetUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, value);
@@ -667,12 +742,13 @@ void SetUIValue(uint8_t value )
       break;
     case S_NUM_STATES:
     default:
-      Serial.printf("ERROR: GetUIValue with invalid UI State\r\n");
+      Serial.printf("ERROR: SetUIValue with invalid UI State\r\n");
       Get_UI_State();
       break;      
   }
 }
 
+//backup value of current UI state in case abort.
 void SaveUIValue()
 {
   last_ui_value = GetUIValue();
@@ -681,10 +757,13 @@ void SaveUIValue()
   //keep a copy of the patch for write / abort
   if ( Get_UI_State() == S_PATCH_WRITE )
   {
+    Serial.printf("save_ui_value: Backup Local Patch Data\r\n");
     memcpy(LocalPatchDataBackup, LocalPatchData, sizeof(LocalPatchData));
+    //UpdateAllLocalPatchData();
   }
 }
 
+//restore value of current UI state in case abort
 void RestoreUIValue()
 {
   SetUIValue( last_ui_value );
@@ -695,6 +774,58 @@ void RestoreUIValue()
   {
     memcpy(LocalPatchData, LocalPatchDataBackup, sizeof(LocalPatchData));
     UpdateAllLocalPatchData();
+  }
+}
+
+//when state is completed successfully, do this
+void FinalizeUIValue()
+{
+ switch ( Get_UI_State() )
+  {
+    case S_PLAY:
+      Serial.printf("FinalizeUIValue: PLAY\r\n");
+      //not really anything to do here?
+      break;
+    case S_PATCH_SELECT:            
+      Serial.printf("FinalizeUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
+      //patch data should already have been loaded by earlier state, so nothing to do to keep it
+      break;
+    case S_PATCH_WRITE:
+      Serial.printf("FinalizeUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
+      //copy the backup patch data back to the local storage
+      memcpy(LocalPatchData, LocalPatchDataBackup, sizeof(LocalPatchData));
+      Serial.printf("LocalPatchData={");
+      for( uint8_t i=0; i< NUM_PATCH_PARAMETERS; i++ )
+      {
+        Serial.printf("%d,",LocalPatchData[i]);        
+      }
+      Serial.printf("\r\n");
+      //process the local patch data so synth can run it.
+      UpdateAllLocalPatchData();      
+      //store into the packed patch data
+      Patch[patch_number].SetAllFromLocal();      
+      break;
+    case S_PARAMETER_SELECT:
+      Serial.printf("FinalizeUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
+      //nothing to do
+      break;
+    case S_PARAMETER_VALUE:
+      Serial.printf("FinalizeUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, parameter_value);
+      //nothing to do
+      break;
+    case S_MODE_CHANGE:
+      Serial.printf("FinalizeUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
+      //nothing to do
+      break;
+    case S_MODE_VALUE:
+      Serial.printf("FinalizeUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
+      //nothing to do
+      break;
+    case S_NUM_STATES:
+    default:
+      Serial.printf("ERROR: FinalizeUIValue with invalid UI State\r\n");
+      Get_UI_State();
+      break;      
   }
 }
 
@@ -726,7 +857,8 @@ uint8_t SubStateKeyDown(uint8_t key)
         //Serial.print("Patch confirmed:");
         //Serial.println(patch_number);
         //last_patch_number = patch_number;
-        SaveUIValue();
+        //SaveUIValue();
+        FinalizeUIValue();
         Set_UI_SubState(SS_SELECT_DONE_SELECTING_DOWN);
       }
       else  //selected some other button, abort
@@ -863,18 +995,18 @@ void ReceiveKeyDown(uint8_t key )
           Serial.printf("Patch!\r\n");
             //last_patch_number = patch_number;   // save the patch number in case of abort
             //patch_number_changed = false;       // clear patch change flag
-            SaveUIValue();
             current_mode_button = PATCH_BUTTON; // save button for comparison in substate code
             Set_UI_State( S_PATCH_SELECT );             // set state
             Set_UI_SubState( SS_SELECT_DOWN );          // set substate
+            SaveUIValue();
             break;
           case WRITE_BUTTON: 
             Serial.printf("Write!\r\n");
             //last_patch_number = patch_number;   // save the patch number in case of abort
-            SaveUIValue();            
             current_mode_button = WRITE_BUTTON; // save button for comparison in substate code
             Set_UI_State( S_PATCH_WRITE );              // set state
-            subState = SS_SELECT_DOWN;          // set substate
+            Set_UI_SubState( SS_SELECT_DOWN );          // set substate
+            SaveUIValue();            
             break;
           case VALUE_BUTTON: 
             Serial.printf("Value!\r\n");
@@ -929,12 +1061,31 @@ void updateControl(){
   // put changing controls in here
   envelope.update();
   gain = envelope.next();
+  
+  //filter math
+  uint16_t filter_calc = env_to_filter;
+  //Serial.printf("Filter:%03d ",filter_calc);
+  filter_calc *= (uint16_t) gain;
+  //Serial.printf("%03d ",filter_calc);
+  filter_calc >>=8;
+  //Serial.printf("%03d ",filter_calc);
+  filter_calc+= (uint16) filter_f;
+  //Serial.printf("%03d ",filter_calc);
+  if ( filter_calc > 255 )
+    filter_calc=255;
+  //Serial.printf("%03d\r\n",filter_calc);
+  
+//  osc1.setFreq(mtof(float(key+note1_ofs)+fine_freq1));
+//  osc2.setFreq(mtof(float(key+note2_ofs)+fine_freq2));
+
+    
+  lpf.setCutoffFreq(filter_calc);
 }
 
 
 int updateAudio(){
   int osc2value = osc2.next();
-  return ((osc1.next()+osc2value+(osc2value*Noise()>>7))*gain)>>9; // return an int signal centred around 0
+  return lpf.next(((osc1.next()+osc2value+(osc2value*Noise()>>7))*gain)>>9); // return an int signal centred around 0
 }
 
 
@@ -958,10 +1109,9 @@ void setup() {
   osc1.setFreq(440); // set the frequency
   osc2.setFreq(440); // set the frequency
   
-  
-
-
   //Init Stylus keyboard library
+  Patch[patch_number].GetAllToLocal();
+  UpdateAllLocalPatchData();
   StylusKeyboardSetup();
   SetKeyDownCallback(&ReceiveKeyDown);
   SetKeyUpCallback(&ReceiveKeyUp);
@@ -1263,7 +1413,7 @@ void loop()
     
     if ( key == NOT_PRESSED )
     {
-      if (!note_off_processed )
+      //if (!note_off_processed )
       {
         SoundKeyUp();
         note_off_processed = true;
