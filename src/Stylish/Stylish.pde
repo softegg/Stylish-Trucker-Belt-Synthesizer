@@ -5,18 +5,24 @@
 WS2812B strip = WS2812B(NUM_LEDS);
 
 #include "rgb.h"
+#include "flashwriter_user.h"
 
 
 #include <MozziGuts.h>
 #include <Oscil.h> // oscillator template
-#include <tables/sin2048_int8.h> // sine table for oscillator
 #include <tables/saw2048_int8.h> // saw table for oscillator
 #include <tables/square_no_alias_2048_int8.h> // square table for oscillator
+#include <tables/triangle2048_int8.h> // sine table for oscillator
+#include <tables/sin2048_int8.h> // sine table for oscillator
 #include <LowPassFilter.h>
 
 #include <mozzi_midi.h>
 #include <mozzi_rand.h>
 #include <ADSR.h>
+
+#define FLASH_TOP (0x080020000)
+
+
 //#include "printf.h"
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
 Oscil <SIN2048_NUM_CELLS, CONTROL_RATE> lfo(SIN2048_DATA);
@@ -43,6 +49,23 @@ float   fine_freq2=0.1;
 uint8_t noise_max;
 uint8_t filter_q=0;
 uint8_t filter_f=0;
+uint8_t lfo_rising_speed=0;
+uint8_t pulse_width=0;
+uint8_t env_to_pitch=0;
+uint8_t env_to_pwm=0;
+uint8_t env_to_noise=0;
+uint8_t lfo_to_filter=0;
+float lfo_to_pitch=0.0f;
+uint8_t lfo_to_volume=0;
+uint8_t lfo_to_pwm=0;
+uint8_t lfo_to_noise=0;
+uint8_t balance=0;
+float   lfo_pitch_add=0.0f;
+
+float osc1_freq=0.0f;
+float osc2_freq=0.0f;
+uint8_t noise_gain=255;
+
 
 uint8_t patch_number=0;
 uint8_t last_patch_number=0;
@@ -56,6 +79,7 @@ uint8_t parameter_value=0;
 uint8_t last_ui_value=0;
 bool note_off_processed = false;
 
+
 // patch structure
 // 26 parameters packed into 
 #define NUM_PATCH_PARAMETERS (26)
@@ -65,6 +89,7 @@ enum e_PATCH_WAVEFORMS
 {
   PPW_SAW,
   PPW_SQUARE,
+  PPW_TRI,
   PPW_SINE,
 };
 
@@ -103,10 +128,10 @@ enum ePATCH_PARAMS
   PP_NUM_PARAMETERS  
 };
 
-uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
-uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
+__attribute__ ((aligned (4))) uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
+__attribute__ ((aligned (4))) uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
 
-uint8_t internal_patch_data[25][16]={
+__attribute__ ((aligned (4))) uint8_t internal_patch_data[25][16]={
 {0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
 {0x70,0x1C,0x74,0x90,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
 {0x60,0x18,0x7F,0x00,0x23,0x59,0xC0,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
@@ -192,13 +217,14 @@ public:
   
   void Echo()
   {
-    uint32_t patch_num_calculate = ( (uint32_t) internal_patch_data - (uint32_t) this ) / 16;
+    uint32_t patch_num_calculate = ( (uint32_t) this - (uint32_t) internal_patch_data ) / 16;
     
     Serial.printf("Patch[%d].values=\r\n{",patch_num_calculate);
     for( uint8_t i=0; i < 16; i++ )
     {
       Serial.printf("0x%02X,",values[i]);
     }
+    Serial.printf("\r\n");
   }
   
   void GetAllToLocal()
@@ -218,6 +244,7 @@ public:
     {
       Set( i, LocalPatchData[i] );
     }
+   
     Echo();
   }  
 };
@@ -227,10 +254,11 @@ public:
 patch_t * Patch = (patch_t *) internal_patch_data;
 //[NUM_PATCHES];
 
+uint32_t * FlashAddress = NULL;
 
 #define NUMBER_MODE_VALUES (25)
 
-uint8_t ModeData[NUMBER_MODE_VALUES];
+__attribute__ ((aligned (4))) uint8_t ModeData[NUMBER_MODE_VALUES];
 
 //order of operations:
 // tap button for thing to change - ring will be a solid color, different for each button
@@ -325,15 +353,92 @@ KeyCallback KeyDownCallback=NULL;
 KeyCallback KeyUpCallback=NULL;
 uint32_t stable_counter=0;
 uint16_t env_to_filter=0;
+char MAGIC[] = "STYLISH1";
+
+void SetFlashAddress()
+{
+  setupFLASH();    
+  FlashAddress = (uint32_t *) (getFlashEnd() - getFlashPageSize());
+  Serial.printf("FlashAddress: 0x%08X\r\n",(uint32_t)FlashAddress);
+};
+
+void WritePatchesToFlash()
+{
+  uint32_t * writeAddress = FlashAddress;
+  //write to flash
+  flashUnlock();
+  flashErasePage( (uint32_t) writeAddress );
+  
+  uint32_t * source = (uint32_t *)internal_patch_data;
+  Serial.printf("WritePatchesToFlash: 0x%l08X <- 0x%l08x\r\n",(uint32_t)FlashAddress,(uint32_t)source);
+  Serial.println((uint32_t)FlashAddress,HEX);
+  Serial.println((uint32_t)source,HEX);
+  
+  for( uint16_t i=0; i < sizeof(patch_t)*NUM_PATCHES/4; i++ )
+  {
+    flashWriteWord((u32)(writeAddress++), *(u32 *)(source +i));      
+  } 
+  //write magic number
+  source = (u32*) MAGIC;
+  flashWriteWord((u32)(writeAddress++), *(u32 *)(source++));      
+  flashWriteWord((u32)(writeAddress++), *(u32 *)(source++));      
+  flashLock();    
+};
+
+void ReadPatchesFromFlash()
+{
+  uint32_t * magic = (uint32_t *) MAGIC;
+  uint32_t byte_count = (sizeof(patch_t)*NUM_PATCHES);
+  Serial.printf("ReadPatchesFromFlash: 0x%l08X -> 0x%l08x  (%d)\r\n",FlashAddress,internal_patch_data, byte_count);
+  if (( FlashAddress[byte_count/4]==magic[0]) && ( FlashAddress[(byte_count/4)+1]==magic[1]))
+  {
+    Serial.printf("MAGIC detected!\r\n");
+  }
+  else return;  
+  
+  Serial.println((uint32_t)FlashAddress,HEX);
+  Serial.println((uint32_t)internal_patch_data,HEX);
+  memcpy(internal_patch_data,FlashAddress, byte_count );
+  
+  uint8_t * patch_data = (uint8_t*) internal_patch_data;
+  for(int i=0; i< byte_count; i++){
+    Serial.printf("0x%02x,",*patch_data++);
+    if ( ((i+1)%16) == 0 )
+    {
+      Serial.printf("\r\n");
+    }
+  }
+/*  
+  for( int i=0; i< NUM_PATCHES; i++)
+  {
+    patch_number = i;
+    Patch[i].GetAllToLocal();
+    uint8_t oct = LocalPatchData[PP_WAVE1]/3;
+    uint8_t wave = LocalPatchData[PP_WAVE1]%3;
+    if (oct>5) oct=5;
+    LocalPatchData[PP_WAVE1]=oct+wave*6;
+    oct = LocalPatchData[PP_WAVE2]/3;
+    wave = LocalPatchData[PP_WAVE2]%3;
+    if (oct>5) oct=5;
+    LocalPatchData[PP_WAVE1]=oct+wave*6;    
+  }
+  WritePatchesToFlash();
+*/  
+};
+
 
 int8_t Noise()
 {
-  return( rand(noise_max) );
+  uint16_t noise_now = noise_gain * noise_max;
+  noise_now >>=8;
+
+  return( rand(noise_now) );
 }
 
 const unsigned int AttackTimes[25]={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
 const unsigned int DecayTimes[25] ={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
 const float LFOFreqencies[25]={0.1f,0.2f,0.3f,0.4f,0.5f, 0.6f,0.7f,0.8f,0.9,1.0f, 1.5f,1.6667f,2.0f,2.2167f,2.3333f, 2.6667f,3.0f,3.3333f, 3.6667f,4.0f, 6.0f,8.0f,10.0f,15.0f,20.0f};
+const float LFOPitches[25]={0.00f,0.025f,0.05f,0.075f,0.1f,  0.15f,0.2f,0.25f,0.3f,0.35f, 0.4f,0.45f,0.5f,0.55f,0.6f, 0.7f,0.75f,0.8f,0.9f,1.0f,  2.0f,3.0f,5.0f,7.0f,12.0f};
 
 uint8_t MapValToByte( uint8_t value, uint8_t min=0, uint8_t max=255 );
 
@@ -349,6 +454,7 @@ uint8_t MapValToByte( uint8_t value, uint8_t min, uint8_t max )
   return( (uint8_t) work );  
 }
 
+
 //sets values in local patch data (unpacked) array
 //and updates system stuff to implement the change
 void SetLocalPatchData(uint8_t param, uint8_t value)
@@ -359,8 +465,9 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     case PP_WAVE1:       // waveform + octave
     case PP_NOTE1:       // note
     {
-      uint8_t oct = LocalPatchData[PP_WAVE1]/3;
-      uint8_t wave = LocalPatchData[PP_WAVE1]%3;
+      uint8_t oct = LocalPatchData[PP_WAVE1]%6;
+      uint8_t wave = LocalPatchData[PP_WAVE1]/6;
+      Serial.printf("PP_WAVE1 or PP_NOTE1 oct=%d wave=%d\r\n",oct,wave);
       switch ( wave )
       {
         case PPW_SAW:
@@ -369,19 +476,23 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
         case PPW_SQUARE:
           osc1.setTable( SQUARE_NO_ALIAS_2048_DATA );
           break;
+        case PPW_TRI:
+          osc1.setTable( TRIANGLE2048_DATA );
+          break;
         case PPW_SINE:
         default:
           osc1.setTable( SIN2048_DATA );
           break;
       }
-      note1_ofs = LocalPatchData[PP_NOTE1]+oct*12;      
+      note1_ofs = (LocalPatchData[PP_NOTE1]+1)+oct*12;      
       break;
     }
     case PP_WAVE2:       // waveform + octave
     case PP_NOTE2:       // note
     {
-      uint8_t oct = LocalPatchData[PP_WAVE2]/3;
-      uint8_t wave = LocalPatchData[PP_WAVE2]%3;
+      uint8_t oct = LocalPatchData[PP_WAVE2]%6;
+      uint8_t wave = LocalPatchData[PP_WAVE2]/6;
+      Serial.printf("PP_WAVE2 or PP_NOTE2 oct=%d wave=%d\r\n",oct,wave);
       switch ( wave )
       {
         case PPW_SAW:
@@ -390,17 +501,20 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
         case PPW_SQUARE:
           osc2.setTable( SQUARE_NO_ALIAS_2048_DATA );
           break;
+        case PPW_TRI:
+          osc2.setTable( TRIANGLE2048_DATA );
+          break;
         case PPW_SINE:
         default:
           osc2.setTable( SIN2048_DATA );
           break;
       }
-      note2_ofs = LocalPatchData[PP_NOTE2]+oct*12;      
+      note2_ofs = (LocalPatchData[PP_NOTE2]+1)+oct*12;      
       break;
     }
     case PP_NOISE:       // amount of noise
       noise_max = value * 10; // close enough...
-      Serial.printf("Noise:%d noise_max:%d\n",value,noise_max);
+      Serial.printf("Noise:%d noise_max:%d\r\n",value,noise_max);
       break;  
     case PP_DETUNE:      // fine pitch difference between oscillators   
     {
@@ -444,19 +558,27 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
       Serial.printf("Filter Frequency:%d %d\r\n",value, filter_f);
       break;
     case PP_LFO_WAVE:    // Waveform for LFO
-    {
-      uint8_t wave = LocalPatchData[PP_WAVE2]%3;
+    {      
+      uint8_t wave = value/6;
+      uint8_t val2 = value%6;
       switch ( wave )
       {
         case PPW_SAW:
           lfo.setTable( SAW2048_DATA );
+          lfo_pitch_add = 0.0f;
           break;
         case PPW_SQUARE:
           lfo.setTable( SQUARE_NO_ALIAS_2048_DATA );
+          lfo_pitch_add = 1.0f;
           break;
+        case PPW_TRI:
+          lfo.setTable( TRIANGLE2048_DATA );
+          lfo_pitch_add = 0.0f;
+          break;          
         case PPW_SINE:
         default:
           lfo.setTable( SIN2048_DATA );
+          lfo_pitch_add = 0.0f;
           break;
       }
       break;
@@ -466,25 +588,54 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
       lfo.setFreq(LFOFreqencies[value]);
       break;
     }
-    case PP_LFO_RAMP:    // start speed of LFO
+    case PP_LFO_RAMP:    // start rising speed of LFO
+      lfo_rising_speed= MapValToByte(value,0,255);
+      Serial.printf("LFO rising speed: %d %d\r\n",value, lfo_rising_speed);
+      break;
     case PP_PULSE_WIDTH: // pulse width for square waves
-  
+      pulse_width= MapValToByte(value,0,255);
+      Serial.printf("Pulse Width: %d %d\r\n",value, pulse_width);
+      break;
     case PP_ENV_FILTER:  // amount of envelope applied to filter  
-    {
       env_to_filter= MapValToByte(value,0,255);
       Serial.printf("Envelope to Filter: %d %d\r\n",value, env_to_filter);
       break;
-    }
     case PP_ENV_PITCH:   // amount of envelope applied to pitch of oscillators
+      env_to_pitch= MapValToByte(value,0,255);
+      Serial.printf("Envelope to Pitch: %d %d\r\n",value, env_to_pitch);
+      break;
     case PP_ENV_PULSE_WIDTH: //amount of envelope to pulse width
+      env_to_pwm= MapValToByte(value,0,255);
+      Serial.printf("Envelope to PWM: %d %d\r\n",value, env_to_pwm);
+      break;
     case PP_ENV_NOISE:   // amount of envelope to noise
+      env_to_noise= MapValToByte(value,0,255);
+      Serial.printf("Envelope to Noise: %d %d\r\n",value, env_to_noise);
+      break;
     case PP_LFO_FILTER:  // amount of LFO applied to filter
-
+      lfo_to_filter= MapValToByte(value,0,255);
+      Serial.printf("LFO to Filter: %d %d\r\n",value, lfo_to_filter);
+      break;
     case PP_LFO_PITCH:   // amount of LFO applied to pitch
+      lfo_to_pitch= LFOPitches[value];
+      Serial.printf("LFO to Pitch: %d %f\r\n",value, lfo_to_pitch);
+      break;
     case PP_LFO_VOLUME:  // amount of LFO applied to volume
+      lfo_to_volume= MapValToByte(value,0,255);
+      Serial.printf("LFO to Volumd: %d %d\r\n",value, lfo_to_volume);
+      break;
     case PP_LFO_PULSE_WIDTH: //amount of LFO to pulse width
+      lfo_to_pwm= MapValToByte(value,0,255);
+      Serial.printf("LFO to PWM: %d %d\r\n",value, lfo_to_pwm);
+      break;
     case PP_LFO_NOISE:   // amount of LFO to noise
+      lfo_to_noise= MapValToByte(value,0,255);
+      Serial.printf("LFO to noise: %d %d\r\n",value, lfo_to_noise);
+      break;
     case PP_BALANCE:     // relative volume of wave 1 to wave 2
+      balance= MapValToByte(value,0,255);
+      Serial.printf("Balance: %d %d\r\n",value, balance);
+      break;
     case PP_NUM_PARAMETERS:
     default:
       break;
@@ -632,8 +783,10 @@ uint32_t GetStylusKeyBits()
 void SoundKeyDown(uint8_t key)
 {
   last_key_played = key;
-  osc1.setFreq(mtof(float(key+note1_ofs)+fine_freq1));
-  osc2.setFreq(mtof(float(key+note2_ofs)+fine_freq2));
+  osc1_freq = mtof(float(key+note1_ofs+fine_freq1));
+  osc2_freq = mtof(float(key+note2_ofs+fine_freq2));
+  osc1.setFreq(osc1_freq);
+  osc2.setFreq(osc2_freq);
   envelope.noteOn();
   Serial.printf("Note on:%d \r\n",key);
 //  gain = 255;        
@@ -803,7 +956,8 @@ void FinalizeUIValue()
       //process the local patch data so synth can run it.
       UpdateAllLocalPatchData();      
       //store into the packed patch data
-      Patch[patch_number].SetAllFromLocal();      
+      Patch[patch_number].SetAllFromLocal();     
+      WritePatchesToFlash();
       break;
     case S_PARAMETER_SELECT:
       Serial.printf("FinalizeUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
@@ -1060,23 +1214,48 @@ void ReceiveKeyUp(uint8_t key )
 void updateControl(){
   // put changing controls in here
   envelope.update();
-  gain = envelope.next();
+  uint8_t env = envelope.next();
+  
+  gain= env;
+  
+  int8_t lfo_raw = lfo.next();
+  
+  int16_t filter_lfo = (int16_t)lfo_raw * lfo_to_filter;
+  filter_lfo>>=8;
+  
+  int32_t lfo_gain = lfo_raw+128;
+  if ( lfo_gain > 255) lfo_gain = 255;
+  if ( lfo_gain < 0 ) lfo_gain = 0;
+
+  noise_gain *= lfo_to_noise;
+  noise_gain>>=8;
+  noise_gain = 255 - noise_gain;
+ 
+  lfo_gain *=lfo_to_volume;
+  lfo_gain>>=8;
+  lfo_gain =255- lfo_gain;
+  
+  uint16_t gain_calc = (uint16_t) gain * lfo_gain;
+  gain = gain_calc >> 8;
   
   //filter math
-  uint16_t filter_calc = env_to_filter;
-  //Serial.printf("Filter:%03d ",filter_calc);
-  filter_calc *= (uint16_t) gain;
-  //Serial.printf("%03d ",filter_calc);
+  uint32_t filter_calc = env_to_filter+filter_lfo;
+  filter_calc *= (uint16_t) env;
   filter_calc >>=8;
-  //Serial.printf("%03d ",filter_calc);
   filter_calc+= (uint16) filter_f;
-  //Serial.printf("%03d ",filter_calc);
   if ( filter_calc > 255 )
     filter_calc=255;
-  //Serial.printf("%03d\r\n",filter_calc);
   
-//  osc1.setFreq(mtof(float(key+note1_ofs)+fine_freq1));
-//  osc2.setFreq(mtof(float(key+note2_ofs)+fine_freq2));
+  float lfo_amt = (float) lfo_raw;
+  lfo_amt/=256.0f;
+    
+  float lfo_pitch = lfo_to_pitch * (lfo_amt+ lfo_pitch_add);
+  
+
+  osc1_freq = mtof(float(last_key_played+note1_ofs+fine_freq1+lfo_pitch));
+  osc2_freq = mtof(float(last_key_played+note2_ofs+fine_freq2+lfo_pitch));
+  osc1.setFreq(osc1_freq);
+  osc2.setFreq(osc2_freq);
 
     
   lpf.setCutoffFreq(filter_calc);
@@ -1092,14 +1271,21 @@ int updateAudio(){
 #define SPEED_DIVIDE (1000)
 #define FLASH_SPEED_DIVIDE (5000)
 
+//#define WAIT_FOR_SERIAL (true)
+
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
   Serial.begin(115200);  
-//  while (!Serial)
-//  {
-//    digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
-//    delay(100);         // fast blink
-//  }  
+  
+#ifdef WAIT_FOR_SERIAL  
+  while (!Serial)
+  {
+    digitalWrite(33,!digitalRead(33));// Turn the LED from off to on, or on to off
+    delay(100);         // fast blink
+  }  
+#endif  
+  SetFlashAddress();  
+
   
   strip.begin();// Sets up the SPI
   strip.show();// Clears the strip, as by default the strip data is set to all LED's off.
@@ -1108,10 +1294,11 @@ void setup() {
   startMozzi(CONTROL_RATE); // :)
   osc1.setFreq(440); // set the frequency
   osc2.setFreq(440); // set the frequency
-  
-  //Init Stylus keyboard library
+
+  ReadPatchesFromFlash();
   Patch[patch_number].GetAllToLocal();
   UpdateAllLocalPatchData();
+  //Init Stylus keyboard library
   StylusKeyboardSetup();
   SetKeyDownCallback(&ReceiveKeyDown);
   SetKeyUpCallback(&ReceiveKeyUp);
