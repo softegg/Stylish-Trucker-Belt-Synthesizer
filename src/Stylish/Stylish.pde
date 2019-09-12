@@ -22,6 +22,13 @@ WS2812B strip = WS2812B(NUM_LEDS);
 
 #define FLASH_TOP (0x080020000)
 
+//#define DEBUG_PRINTF Serial.printf
+//#define DEBUG_APRINTLN Serial.println
+//#define DEBUG_APRINT Serial.print
+#define DEBUG_PRINTF( __xxx__, ...)
+#define DEBUG_APRINTLN( __xxx__, ...)
+#define DEBUG_APRINT( __xxx__, ...)
+
 
 //#include "printf.h"
 // use: Oscil <table_size, update_rate> oscilName (wavetable), look in .h file of table #included above
@@ -51,7 +58,8 @@ uint8_t filter_q=0;
 uint8_t filter_f=0;
 uint8_t lfo_rising_speed=0;
 uint8_t pulse_width=0;
-uint8_t env_to_pitch=0;
+uint8_t env_to_pitch1=0.0f;
+uint8_t env_to_pitch2=0.0f;
 uint8_t env_to_pwm=0;
 uint8_t env_to_noise=0;
 uint8_t lfo_to_filter=0;
@@ -61,6 +69,7 @@ uint8_t lfo_to_pwm=0;
 uint8_t lfo_to_noise=0;
 uint8_t balance=0;
 float   lfo_pitch_add=0.0f;
+float   env_sustain_pitch_sub=0.0f;
 
 float osc1_freq=0.0f;
 float osc2_freq=0.0f;
@@ -96,33 +105,35 @@ enum e_PATCH_WAVEFORMS
 enum ePATCH_PARAMS
 {
   PP_WAVE1,       // waveform + octave
-  PP_NOTE1,       // note
+   PP_NOTE1,       // note
   PP_WAVE2,       // waveform + octave
-  PP_NOTE2,       // note
-  PP_NOISE,       // amount of noise
+   PP_NOTE2,       // note
+  PP_NOISE,       // amount of noise  
   
   PP_DETUNE,      // fine pitch difference between oscillators   
-  PP_ATTACK,      // ADSR envelope
+   PP_ATTACK,      // ADSR envelope
   PP_DECAY,       // ADSR envelope
-  PP_SUSTAIN,     // ADSR envelope
-  PP_RELEASE,     // ADSR envelope
-  
-  PP_FILTER_Q,    // Filter resonance  
+   PP_SUSTAIN,     // ADSR envelope
+  PP_RELEASE,     // ADSR envelope  
+   PP_FILTER_Q,    // Filter resonance  
   PP_FILTER_F,    // filter frequency  
-  PP_LFO_WAVE,    // Waveform for LFO
-  PP_LFO_FREQ,    // Frequency for LFO
-  PP_LFO_RAMP,    // start speed of LFO
-  PP_PULSE_WIDTH, // pulse width for square waves
   
+  
+  PP_LFO_WAVE,    // Waveform for LFO
+   PP_LFO_FREQ,    // Frequency for LFO
+  PP_LFO_RAMP,    // start speed of LFO
+   PP_PULSE_WIDTH, // pulse width for square waves  
   PP_ENV_FILTER,  // amount of envelope applied to filter  
+  
   PP_ENV_PITCH,   // amount of envelope applied to pitch of oscillators
-  PP_ENV_PULSE_WIDTH, //amount of envelope to pulse width
+   PP_ENV_PULSE_WIDTH, //amount of envelope to pulse width
   PP_ENV_NOISE,   // amount of envelope to noise
-  PP_LFO_FILTER,  // amount of LFO applied to filter
-
+   PP_LFO_FILTER,  // amount of LFO applied to filter
   PP_LFO_PITCH,   // amount of LFO applied to pitch
-  PP_LFO_VOLUME,  // amount of LFO applied to volume
+   PP_LFO_VOLUME,  // amount of LFO applied to volume
   PP_LFO_PULSE_WIDTH, //amount of LFO to pulse width
+  
+  
   PP_LFO_NOISE,   // amount of LFO to noise
   PP_BALANCE,     // relative volume of wave 1 to wave 2
   PP_NUM_PARAMETERS  
@@ -132,31 +143,31 @@ __attribute__ ((aligned (4))) uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
 __attribute__ ((aligned (4))) uint8_t LocalPatchDataBackup[ NUM_PATCH_PARAMETERS ];
 
 __attribute__ ((aligned (4))) uint8_t internal_patch_data[25][16]={
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x70,0x1C,0x74,0x90,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x60,0x18,0x7F,0x00,0x23,0x59,0xC0,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0xCF,0x11,0x50,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x68,0x14,0x05,0x14,0x10,0x05,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
-{0x48,0x12,0x7F,0x10,0x10,0xC5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00}
+{0x18,0x06,0x70,0x10,0x10,0xc5,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0xa8,0x2a,0xc4,0x90,0x10,0xc0,0x00,0x99,0x00,0x03,0x00,0x00,0x60,0x00,0x00,0x00},
+{0x48,0x12,0x7f,0x00,0x23,0x59,0xc0,0x99,0x00,0x03,0x00,0x00,0x60,0x00,0x00,0x00},
+{0x48,0x12,0xcf,0x11,0x50,0xc5,0x40,0x99,0x00,0x03,0x00,0x00,0x60,0x00,0x00,0x00},
+{0x48,0x12,0x7f,0x10,0x10,0xc5,0x41,0x59,0x00,0x03,0x00,0x00,0x60,0x00,0x00,0x00},
+{0x50,0x14,0x00,0x0c,0x15,0xc1,0x53,0x6c,0x00,0x00,0xc0,0x00,0x60,0x00,0x00,0x00},
+{0x70,0x2a,0x74,0x90,0x10,0xc5,0x81,0x89,0x00,0x03,0xc0,0x00,0x64,0x00,0x00,0x00},
+{0x2e,0x0a,0x5f,0x11,0x10,0xc1,0x40,0x09,0x00,0x03,0x00,0x00,0x64,0x30,0x00,0x00},
+{0x48,0x12,0x77,0x12,0x70,0xc5,0x47,0x79,0x00,0x03,0x00,0x00,0x60,0x00,0x00,0x00},
+{0x50,0x14,0x00,0x0c,0x15,0x4c,0xd3,0x8c,0x1c,0x00,0xc0,0x00,0x69,0xc4,0x00,0x00},
+{0x10,0x1d,0x0f,0x02,0xb7,0x85,0xc0,0x9a,0x84,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x30,0x0c,0x0f,0x10,0x02,0x00,0xb1,0x49,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x30,0x0c,0x0c,0x10,0x0b,0x02,0xf0,0x09,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x18,0x06,0x07,0x0a,0x70,0xc4,0x41,0x73,0x9c,0x03,0xc0,0x00,0x64,0x60,0x00,0x00},
+{0x18,0x06,0x70,0x10,0x17,0x2d,0x41,0x8a,0xb4,0x03,0xc0,0x00,0x64,0x1c,0x00,0x00},
+{0x18,0x06,0x00,0x10,0x10,0xc5,0x4f,0x80,0x28,0x03,0x00,0x00,0x64,0x03,0x18,0x00},
+{0x18,0x06,0x70,0x10,0x10,0xc5,0x40,0x99,0x00,0x03,0x03,0x00,0x64,0x00,0x00,0x00},
+{0x30,0x0c,0x0c,0x10,0x17,0x02,0xf0,0x09,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x20,0x12,0x0f,0x04,0x10,0xc5,0x40,0x97,0x24,0x03,0xc0,0x00,0x60,0x24,0x00,0x00},
+{0x48,0x14,0x4f,0x04,0x10,0xc0,0x00,0x93,0x9c,0x03,0xc0,0x01,0x20,0x5c,0x00,0x00},
+{0x78,0x22,0xcf,0x10,0x09,0x02,0x40,0x99,0x00,0x03,0x00,0x00,0x64,0x00,0x00,0x00},
+{0x20,0x08,0xc0,0x10,0x11,0x04,0xc1,0x18,0x94,0x03,0xc0,0x00,0x64,0xcc,0x00,0x00},
+{0x00,0x00,0x7c,0x10,0x10,0xc5,0x40,0x9a,0x80,0x03,0x06,0x00,0x64,0x80,0x00,0x00},
+{0x28,0x1c,0x00,0x11,0x70,0xc3,0x01,0x88,0x9c,0x03,0xc0,0x00,0x63,0x80,0x00,0x00},
+{0x48,0x16,0x00,0x04,0x53,0x80,0x00,0x59,0x28,0x03,0x00,0x00,0x60,0x14,0x00,0x00},
 };
 
 class patch_t
@@ -219,17 +230,17 @@ public:
   {
     uint32_t patch_num_calculate = ( (uint32_t) this - (uint32_t) internal_patch_data ) / 16;
     
-    Serial.printf("Patch[%d].values=\r\n{",patch_num_calculate);
+    DEBUG_PRINTF("Patch[%d].values=\r\n{",patch_num_calculate);
     for( uint8_t i=0; i < 16; i++ )
     {
-      Serial.printf("0x%02X,",values[i]);
+      DEBUG_PRINTF("0x%02X,",values[i]);
     }
-    Serial.printf("\r\n");
+    DEBUG_PRINTF("\r\n");
   }
   
   void GetAllToLocal()
   {
-    Serial.printf("GetAllToLocal\r\n");
+    DEBUG_PRINTF("GetAllToLocal\r\n");
     for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
     {
       LocalPatchData[i] = Get( i );
@@ -239,7 +250,7 @@ public:
   
   void SetAllFromLocal()
   {
-    Serial.printf("SetAllFromLocal\r\n");
+    DEBUG_PRINTF("SetAllFromLocal\r\n");
     for( uint8_t i=0; i < NUM_PATCH_PARAMETERS; i++ )
     {
       Set( i, LocalPatchData[i] );
@@ -359,7 +370,7 @@ void SetFlashAddress()
 {
   setupFLASH();    
   FlashAddress = (uint32_t *) (getFlashEnd() - getFlashPageSize());
-  Serial.printf("FlashAddress: 0x%08X\r\n",(uint32_t)FlashAddress);
+  DEBUG_PRINTF("FlashAddress: 0x%08X\r\n",(uint32_t)FlashAddress);
 };
 
 void WritePatchesToFlash()
@@ -370,9 +381,9 @@ void WritePatchesToFlash()
   flashErasePage( (uint32_t) writeAddress );
   
   uint32_t * source = (uint32_t *)internal_patch_data;
-  Serial.printf("WritePatchesToFlash: 0x%l08X <- 0x%l08x\r\n",(uint32_t)FlashAddress,(uint32_t)source);
-  Serial.println((uint32_t)FlashAddress,HEX);
-  Serial.println((uint32_t)source,HEX);
+  DEBUG_PRINTF("WritePatchesToFlash: 0x%l08X <- 0x%l08x\r\n",(uint32_t)FlashAddress,(uint32_t)source);
+  DEBUG_APRINTLN((uint32_t)FlashAddress,HEX);
+  DEBUG_APRINTLN((uint32_t)source,HEX);
   
   for( uint16_t i=0; i < sizeof(patch_t)*NUM_PATCHES/4; i++ )
   {
@@ -389,23 +400,23 @@ void ReadPatchesFromFlash()
 {
   uint32_t * magic = (uint32_t *) MAGIC;
   uint32_t byte_count = (sizeof(patch_t)*NUM_PATCHES);
-  Serial.printf("ReadPatchesFromFlash: 0x%l08X -> 0x%l08x  (%d)\r\n",FlashAddress,internal_patch_data, byte_count);
+  DEBUG_PRINTF("ReadPatchesFromFlash: 0x%l08X -> 0x%l08x  (%d)\r\n",FlashAddress,internal_patch_data, byte_count);
   if (( FlashAddress[byte_count/4]==magic[0]) && ( FlashAddress[(byte_count/4)+1]==magic[1]))
   {
-    Serial.printf("MAGIC detected!\r\n");
+    DEBUG_PRINTF("MAGIC detected!\r\n");
   }
   else return;  
   
-  Serial.println((uint32_t)FlashAddress,HEX);
-  Serial.println((uint32_t)internal_patch_data,HEX);
+  DEBUG_APRINTLN((uint32_t)FlashAddress,HEX);
+  DEBUG_APRINTLN((uint32_t)internal_patch_data,HEX);
   memcpy(internal_patch_data,FlashAddress, byte_count );
   
   uint8_t * patch_data = (uint8_t*) internal_patch_data;
   for(int i=0; i< byte_count; i++){
-    Serial.printf("0x%02x,",*patch_data++);
+    DEBUG_PRINTF("0x%02x,",*patch_data++);
     if ( ((i+1)%16) == 0 )
     {
-      Serial.printf("\r\n");
+      DEBUG_PRINTF("\r\n");
     }
   }
 /*  
@@ -439,6 +450,8 @@ const unsigned int AttackTimes[25]={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,
 const unsigned int DecayTimes[25] ={/*0,*/ 10,20,40,60, 80,100,110,120,130, 140,160,180,200,250, 300,400,500,600,700, 800,900,1000,2500,5000, 8000};
 const float LFOFreqencies[25]={0.1f,0.2f,0.3f,0.4f,0.5f, 0.6f,0.7f,0.8f,0.9,1.0f, 1.5f,1.6667f,2.0f,2.2167f,2.3333f, 2.6667f,3.0f,3.3333f, 3.6667f,4.0f, 6.0f,8.0f,10.0f,15.0f,20.0f};
 const float LFOPitches[25]={0.00f,0.025f,0.05f,0.075f,0.1f,  0.15f,0.2f,0.25f,0.3f,0.35f, 0.4f,0.45f,0.5f,0.55f,0.6f, 0.7f,0.75f,0.8f,0.9f,1.0f,  2.0f,3.0f,5.0f,7.0f,12.0f};
+const float EnvPitch1[25] ={0.0f, 0.035f,0.07f,0.1f,0.2f,0.4f, 0.8f,1.0f,3.0f,4.0f,5.0f, 7.0f,12.0f,0.035f,0.07f,0.1f, 0.2f,0.4f,0.8f,1.0f,3.0f, 4.0f,5.0f,7.0f,12.0f};
+const float EnvPitch2[25]={0.0f, 0.035f,0.07f,0.1f,0.2f,0.4f, 0.8f,1.0f,3.0f,4.0f,5.0f, 7.0f,12.0f,0.000f,0.00f,0.0f, 0.0f,0.0f,0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,00.0f};
 
 uint8_t MapValToByte( uint8_t value, uint8_t min=0, uint8_t max=255 );
 
@@ -467,7 +480,7 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     {
       uint8_t oct = LocalPatchData[PP_WAVE1]%6;
       uint8_t wave = LocalPatchData[PP_WAVE1]/6;
-      Serial.printf("PP_WAVE1 or PP_NOTE1 oct=%d wave=%d\r\n",oct,wave);
+      DEBUG_PRINTF("PP_WAVE1 or PP_NOTE1 oct=%d wave=%d\r\n",oct,wave);
       switch ( wave )
       {
         case PPW_SAW:
@@ -492,7 +505,7 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     {
       uint8_t oct = LocalPatchData[PP_WAVE2]%6;
       uint8_t wave = LocalPatchData[PP_WAVE2]/6;
-      Serial.printf("PP_WAVE2 or PP_NOTE2 oct=%d wave=%d\r\n",oct,wave);
+      DEBUG_PRINTF("PP_WAVE2 or PP_NOTE2 oct=%d wave=%d\r\n",oct,wave);
       switch ( wave )
       {
         case PPW_SAW:
@@ -514,7 +527,7 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     }
     case PP_NOISE:       // amount of noise
       noise_max = value * 10; // close enough...
-      Serial.printf("Noise:%d noise_max:%d\r\n",value,noise_max);
+      DEBUG_PRINTF("Noise:%d noise_max:%d\r\n",value,noise_max);
       break;  
     case PP_DETUNE:      // fine pitch difference between oscillators   
     {
@@ -526,12 +539,12 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     case PP_ATTACK:      // ADSR envelope
       envelope.setAttackLevel(255);
       envelope.setAttackTime(AttackTimes[value]);
-      Serial.printf("Attack: %d = %dms\r\n",value, AttackTimes[value]);      
+      DEBUG_PRINTF("Attack: %d = %dms\r\n",value, AttackTimes[value]);      
       break;
     case PP_DECAY:       // ADSR envelope
       envelope.setDecayLevel(MapValToByte(LocalPatchData[PP_SUSTAIN]));
       envelope.setDecayTime(DecayTimes[value]);    
-      Serial.printf("Decay: %d = %dms\r\n",value, AttackTimes[value]);      
+      DEBUG_PRINTF("Decay: %d = %dms\r\n",value, AttackTimes[value]);      
       break;
     case PP_SUSTAIN:     // ADSR envelope
     {
@@ -539,23 +552,24 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
       envelope.setSustainLevel( level );
       envelope.setDecayLevel( level );
       envelope.setSustainTime(0xFFFFFFFF);
-      Serial.printf("Sustain: %d = %d\r\n",value, level);            
+      DEBUG_PRINTF("Sustain: %d = %d\r\n",value, level);      
+      env_sustain_pitch_sub = (float) level;
       break;
     }
     case PP_RELEASE:     // ADSR envelope
       envelope.setReleaseLevel(0);
       envelope.setReleaseTime(DecayTimes[value]);
-      Serial.printf("Release: %d = %dms\r\n",value, AttackTimes[value]);            
+      DEBUG_PRINTF("Release: %d = %dms\r\n",value, AttackTimes[value]);            
       break;
     case PP_FILTER_Q:    // Filter resonance
       filter_q = MapValToByte(value,255,1);
       lpf.setResonance(filter_q);
-      Serial.printf("Filter Resonance:%d %d\r\n",value,filter_q);
+      DEBUG_PRINTF("Filter Resonance:%d %d\r\n",value,filter_q);
       break;
     case PP_FILTER_F:    // filter frequency  
       filter_f = MapValToByte(value,255,1);
       lpf.setCutoffFreq(filter_f);
-      Serial.printf("Filter Frequency:%d %d\r\n",value, filter_f);
+      DEBUG_PRINTF("Filter Frequency:%d %d\r\n",value, filter_f);
       break;
     case PP_LFO_WAVE:    // Waveform for LFO
     {      
@@ -590,51 +604,56 @@ void SetLocalPatchData(uint8_t param, uint8_t value)
     }
     case PP_LFO_RAMP:    // start rising speed of LFO
       lfo_rising_speed= MapValToByte(value,0,255);
-      Serial.printf("LFO rising speed: %d %d\r\n",value, lfo_rising_speed);
+      DEBUG_PRINTF("LFO rising speed: %d %d\r\n",value, lfo_rising_speed);
       break;
     case PP_PULSE_WIDTH: // pulse width for square waves
       pulse_width= MapValToByte(value,0,255);
-      Serial.printf("Pulse Width: %d %d\r\n",value, pulse_width);
+      DEBUG_PRINTF("Pulse Width: %d %d\r\n",value, pulse_width);
       break;
     case PP_ENV_FILTER:  // amount of envelope applied to filter  
       env_to_filter= MapValToByte(value,0,255);
-      Serial.printf("Envelope to Filter: %d %d\r\n",value, env_to_filter);
+      DEBUG_PRINTF("Envelope to Filter: %d %d\r\n",value, env_to_filter);
       break;
     case PP_ENV_PITCH:   // amount of envelope applied to pitch of oscillators
-      env_to_pitch= MapValToByte(value,0,255);
-      Serial.printf("Envelope to Pitch: %d %d\r\n",value, env_to_pitch);
+      env_to_pitch1= EnvPitch1[value];
+      env_to_pitch2= EnvPitch2[value];
+      DEBUG_PRINTF("Envelope to Pitch: %d",value);
+      DEBUG_APRINT(env_to_pitch1);
+      DEBUG_PRINTF(",");
+      DEBUG_APRINT(env_to_pitch2);
+      DEBUG_PRINTF("\r\n");
       break;
     case PP_ENV_PULSE_WIDTH: //amount of envelope to pulse width
       env_to_pwm= MapValToByte(value,0,255);
-      Serial.printf("Envelope to PWM: %d %d\r\n",value, env_to_pwm);
+      DEBUG_PRINTF("Envelope to PWM: %d %d\r\n",value, env_to_pwm);
       break;
     case PP_ENV_NOISE:   // amount of envelope to noise
       env_to_noise= MapValToByte(value,0,255);
-      Serial.printf("Envelope to Noise: %d %d\r\n",value, env_to_noise);
+      DEBUG_PRINTF("Envelope to Noise: %d %d\r\n",value, env_to_noise);
       break;
     case PP_LFO_FILTER:  // amount of LFO applied to filter
       lfo_to_filter= MapValToByte(value,0,255);
-      Serial.printf("LFO to Filter: %d %d\r\n",value, lfo_to_filter);
+      DEBUG_PRINTF("LFO to Filter: %d %d\r\n",value, lfo_to_filter);
       break;
     case PP_LFO_PITCH:   // amount of LFO applied to pitch
       lfo_to_pitch= LFOPitches[value];
-      Serial.printf("LFO to Pitch: %d %f\r\n",value, lfo_to_pitch);
+      DEBUG_PRINTF("LFO to Pitch: %d %f\r\n",value, lfo_to_pitch);
       break;
     case PP_LFO_VOLUME:  // amount of LFO applied to volume
       lfo_to_volume= MapValToByte(value,0,255);
-      Serial.printf("LFO to Volumd: %d %d\r\n",value, lfo_to_volume);
+      DEBUG_PRINTF("LFO to Volumd: %d %d\r\n",value, lfo_to_volume);
       break;
     case PP_LFO_PULSE_WIDTH: //amount of LFO to pulse width
       lfo_to_pwm= MapValToByte(value,0,255);
-      Serial.printf("LFO to PWM: %d %d\r\n",value, lfo_to_pwm);
+      DEBUG_PRINTF("LFO to PWM: %d %d\r\n",value, lfo_to_pwm);
       break;
     case PP_LFO_NOISE:   // amount of LFO to noise
       lfo_to_noise= MapValToByte(value,0,255);
-      Serial.printf("LFO to noise: %d %d\r\n",value, lfo_to_noise);
+      DEBUG_PRINTF("LFO to noise: %d %d\r\n",value, lfo_to_noise);
       break;
     case PP_BALANCE:     // relative volume of wave 1 to wave 2
       balance= MapValToByte(value,0,255);
-      Serial.printf("Balance: %d %d\r\n",value, balance);
+      DEBUG_PRINTF("Balance: %d %d\r\n",value, balance);
       break;
     case PP_NUM_PARAMETERS:
     default:
@@ -664,7 +683,7 @@ void SetKeyUpCallback(KeyCallback key_up_callback)
 void Set_UI_State(eUI_States _state)
 {
   state = _state;
-  Serial.printf("Set State: %s\r\n", UI_State_Strings[ state ] );
+  DEBUG_PRINTF("Set State: %s\r\n", UI_State_Strings[ state ] );
 }
 
 eUI_States Get_UI_State(bool echo = true);
@@ -673,7 +692,7 @@ eUI_States Get_UI_State(bool echo)
 {
   if ( echo )
   {
-    Serial.printf("Get State: %s\r\n", UI_State_Strings[ state ] );
+    DEBUG_PRINTF("Get State: %s\r\n", UI_State_Strings[ state ] );
   }
   return( state );
 }
@@ -681,7 +700,7 @@ eUI_States Get_UI_State(bool echo)
 void Set_UI_SubState(eUI_SubStates _subState)
 {
   subState = _subState;
-  Serial.printf("Set SubState: %s\r\n", UI_SubState_Strings[ subState ] );
+  DEBUG_PRINTF("Set SubState: %s\r\n", UI_SubState_Strings[ subState ] );
 };
 
 eUI_SubStates Get_UI_SubState(bool echo = true);
@@ -690,7 +709,7 @@ eUI_SubStates Get_UI_SubState(bool echo)
 {
   if ( echo )
   {
-    Serial.printf("Get SubState: %s\r\n", UI_SubState_Strings[ subState ] );
+    DEBUG_PRINTF("Get SubState: %s\r\n", UI_SubState_Strings[ subState ] );
   }
   return( subState );
 };
@@ -698,7 +717,7 @@ eUI_SubStates Get_UI_SubState(bool echo)
 
 void StylusKeyboardSetup()
 {
-  Serial.printf("Stylus Keyboard Setup\r\n");
+  DEBUG_PRINTF("Stylus Keyboard Setup\r\n");
   __IO uint32 *mapr = &AFIO_BASE->MAPR;
   afio_cfg_debug_ports(AFIO_DEBUG_SW_ONLY/*AFIO_DEBUG_NONE*/);
   
@@ -788,7 +807,7 @@ void SoundKeyDown(uint8_t key)
   osc1.setFreq(osc1_freq);
   osc2.setFreq(osc2_freq);
   envelope.noteOn();
-  Serial.printf("Note on:%d \r\n",key);
+  DEBUG_PRINTF("Note on:%d \r\n",key);
 //  gain = 255;        
 }
 
@@ -796,7 +815,7 @@ void SoundKeyUp()
 {
   //key_down = NOT_PRESSED;
   envelope.noteOff();
-  //Serial.printf("Note off\r\n");
+  //DEBUG_PRINTF("Note off\r\n");
 }
 
 void SoundRetrigger()
@@ -811,36 +830,36 @@ uint8_t GetUIValue()
   switch ( Get_UI_State() )
   {
     case S_PLAY:
-      Serial.printf("GetUIValue: PLAY key_down = %d\r\n",key_down);
+      DEBUG_PRINTF("GetUIValue: PLAY key_down = %d\r\n",key_down);
       return (key_down);
       break;
     case S_PATCH_SELECT:
-      Serial.printf("GetUIValue: PATCH_SELECT patch_number = %d\r\n",patch_number);
+      DEBUG_PRINTF("GetUIValue: PATCH_SELECT patch_number = %d\r\n",patch_number);
       return( patch_number );
       break;
     case S_PATCH_WRITE:
-      Serial.printf("GetUIValue: PATCH_WRITE patch_number = %d\r\n",patch_number);
+      DEBUG_PRINTF("GetUIValue: PATCH_WRITE patch_number = %d\r\n",patch_number);
       return( patch_number );
       break;
     case S_PARAMETER_SELECT:
-      Serial.printf("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n",parameter_number);
+      DEBUG_PRINTF("GetUIValue: PARAMETER_SELECT parameter_number = %d\r\n",parameter_number);
       return( parameter_number );
       break;
     case S_PARAMETER_VALUE:
-      Serial.printf("GetUIValue: PARAMETER_VALUE(%d)=%d\r\n",parameter_number, LocalPatchData[ parameter_number ] );
+      DEBUG_PRINTF("GetUIValue: PARAMETER_VALUE(%d)=%d\r\n",parameter_number, LocalPatchData[ parameter_number ] );
       return( LocalPatchData[ parameter_number ] );
       break;
     case S_MODE_CHANGE:
-      Serial.printf("GetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n",mode_parameter_number);
+      DEBUG_PRINTF("GetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n",mode_parameter_number);
       return( mode_parameter_number );
       break;
     case S_MODE_VALUE:
-      Serial.printf("GetUIValue: MODE_VALUE(%d)=%d\r\n",mode_parameter_number, ModeData[ mode_parameter_number ] );
+      DEBUG_PRINTF("GetUIValue: MODE_VALUE(%d)=%d\r\n",mode_parameter_number, ModeData[ mode_parameter_number ] );
       return( ModeData[ mode_parameter_number ] );
       break;
     case S_NUM_STATES:
     default:
-      Serial.printf("ERROR: GetUIValue with invalid UI State\r\n");
+      DEBUG_PRINTF("ERROR: GetUIValue with invalid UI State\r\n");
       Get_UI_State();
       return(0);
       break;      
@@ -854,18 +873,18 @@ void SetUIValue(uint8_t value )
   {
     case S_PLAY:
       key_down = value;
-      Serial.printf("SetUIValue: PLAY key_down = %d\r\n",key_down);
+      DEBUG_PRINTF("SetUIValue: PLAY key_down = %d\r\n",key_down);
       break;
     case S_PATCH_SELECT:      
       patch_number = value;
-      Serial.printf("SetUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
+      DEBUG_PRINTF("SetUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
       //copy to synth local unpacked parameters here
       Patch[patch_number].GetAllToLocal();
       UpdateAllLocalPatchData();
       break;
     case S_PATCH_WRITE:
       patch_number = value;
-      Serial.printf("SetUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
+      DEBUG_PRINTF("SetUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
       //copy current patch parameters into new patch area.
       Patch[patch_number].GetAllToLocal();
       UpdateAllLocalPatchData();
@@ -874,10 +893,10 @@ void SetUIValue(uint8_t value )
     case S_PARAMETER_SELECT:
       parameter_number = value;
       parameter_value = LocalPatchData[ parameter_number ];
-      Serial.printf("SetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
+      DEBUG_PRINTF("SetUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
       break;
     case S_PARAMETER_VALUE:
-      Serial.printf("SetUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, value);
+      DEBUG_PRINTF("SetUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, value);
       //set local patch value
       //LocalPatchData[ parameter_number ] = value;
       SetLocalPatchData( parameter_number, value );
@@ -886,16 +905,16 @@ void SetUIValue(uint8_t value )
     case S_MODE_CHANGE:
       mode_parameter_number = value;
       mode_value = ModeData[ mode_parameter_number ];
-      Serial.printf("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
+      DEBUG_PRINTF("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
       break;
     case S_MODE_VALUE:
       ModeData[ mode_parameter_number ] = value;
       mode_value = value;
-      Serial.printf("SetUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
+      DEBUG_PRINTF("SetUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
       break;
     case S_NUM_STATES:
     default:
-      Serial.printf("ERROR: SetUIValue with invalid UI State\r\n");
+      DEBUG_PRINTF("ERROR: SetUIValue with invalid UI State\r\n");
       Get_UI_State();
       break;      
   }
@@ -910,7 +929,7 @@ void SaveUIValue()
   //keep a copy of the patch for write / abort
   if ( Get_UI_State() == S_PATCH_WRITE )
   {
-    Serial.printf("save_ui_value: Backup Local Patch Data\r\n");
+    DEBUG_PRINTF("save_ui_value: Backup Local Patch Data\r\n");
     memcpy(LocalPatchDataBackup, LocalPatchData, sizeof(LocalPatchData));
     //UpdateAllLocalPatchData();
   }
@@ -936,23 +955,23 @@ void FinalizeUIValue()
  switch ( Get_UI_State() )
   {
     case S_PLAY:
-      Serial.printf("FinalizeUIValue: PLAY\r\n");
+      DEBUG_PRINTF("FinalizeUIValue: PLAY\r\n");
       //not really anything to do here?
       break;
     case S_PATCH_SELECT:            
-      Serial.printf("FinalizeUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
+      DEBUG_PRINTF("FinalizeUIValue: PATCH_SELECT patch_number = %d\r\n", patch_number);
       //patch data should already have been loaded by earlier state, so nothing to do to keep it
       break;
     case S_PATCH_WRITE:
-      Serial.printf("FinalizeUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
+      DEBUG_PRINTF("FinalizeUIValue: PATCH_WRITE patch_number = %d\r\n", patch_number);
       //copy the backup patch data back to the local storage
       memcpy(LocalPatchData, LocalPatchDataBackup, sizeof(LocalPatchData));
-      Serial.printf("LocalPatchData={");
+      DEBUG_PRINTF("LocalPatchData={");
       for( uint8_t i=0; i< NUM_PATCH_PARAMETERS; i++ )
       {
-        Serial.printf("%d,",LocalPatchData[i]);        
+        DEBUG_PRINTF("%d,",LocalPatchData[i]);        
       }
-      Serial.printf("\r\n");
+      DEBUG_PRINTF("\r\n");
       //process the local patch data so synth can run it.
       UpdateAllLocalPatchData();      
       //store into the packed patch data
@@ -960,24 +979,24 @@ void FinalizeUIValue()
       WritePatchesToFlash();
       break;
     case S_PARAMETER_SELECT:
-      Serial.printf("FinalizeUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
+      DEBUG_PRINTF("FinalizeUIValue: PARAMETER_SELECT parameter_number = %d\r\n", parameter_number);
       //nothing to do
       break;
     case S_PARAMETER_VALUE:
-      Serial.printf("FinalizeUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, parameter_value);
+      DEBUG_PRINTF("FinalizeUIValue: PARAMETER_VALUE(%d)=%d\r\n", parameter_number, parameter_value);
       //nothing to do
       break;
     case S_MODE_CHANGE:
-      Serial.printf("FinalizeUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
+      DEBUG_PRINTF("FinalizeUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
       //nothing to do
       break;
     case S_MODE_VALUE:
-      Serial.printf("FinalizeUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
+      DEBUG_PRINTF("FinalizeUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
       //nothing to do
       break;
     case S_NUM_STATES:
     default:
-      Serial.printf("ERROR: FinalizeUIValue with invalid UI State\r\n");
+      DEBUG_PRINTF("ERROR: FinalizeUIValue with invalid UI State\r\n");
       Get_UI_State();
       break;      
   }
@@ -998,8 +1017,8 @@ uint8_t SubStateKeyDown(uint8_t key)
     case SS_SELECT_WAIT_FOR_VALUE:
       if ( key < NUM_NOTES )
       {
-        //Serial.print("Patch selected:");
-        //Serial.println(patch_number);
+        //DEBUG_APRINT("Patch selected:");
+        //DEBUG_APRINTLN(patch_number);
         //patch_number = key;
         SetUIValue(key);
         //set patch data here
@@ -1008,8 +1027,8 @@ uint8_t SubStateKeyDown(uint8_t key)
       }
       else if ( key == current_mode_button )  //pressed current mode button, so write value
       {
-        //Serial.print("Patch confirmed:");
-        //Serial.println(patch_number);
+        //DEBUG_APRINT("Patch confirmed:");
+        //DEBUG_APRINTLN(patch_number);
         //last_patch_number = patch_number;
         //SaveUIValue();
         FinalizeUIValue();
@@ -1017,9 +1036,9 @@ uint8_t SubStateKeyDown(uint8_t key)
       }
       else  //selected some other button, abort
       {
-        //Serial.print("Patch aborted:");
+        //DEBUG_APRINT("Patch aborted:");
         //patch_number = last_patch_number;
-        //Serial.println(patch_number);
+        //DEBUG_APRINTLN(patch_number);
         RestoreUIValue();
         Set_UI_SubState( SS_SELECT_ABORT_DOWN );          // set substate      
       }
@@ -1029,13 +1048,13 @@ uint8_t SubStateKeyDown(uint8_t key)
     case SS_SELECT_PLAYING_VALUE_AUDITION:
     case SS_SELECT_DONE_SELECTING_DOWN:
     case SS_SELECT_ABORT_DOWN:
-      Serial.printf("ERROR! Got SubStateKeyDown on a state that shouln't get it!\r\n");
+      DEBUG_PRINTF("ERROR! Got SubStateKeyDown on a state that shouln't get it!\r\n");
       Get_UI_SubState();
       break;
     case SS_NUM_STATES:
     default:
-      Serial.printf("ERROR! BAD SUBSTATE In SubStateKeyUp!\r\n");
-      Serial.println(Get_UI_SubState());
+      DEBUG_PRINTF("ERROR! BAD SUBSTATE In SubStateKeyUp!\r\n");
+      DEBUG_APRINTLN(Get_UI_SubState());
       break;
   }
 }
@@ -1118,7 +1137,7 @@ void SubStateKeyUp(uint8_t key)
       Set_UI_SubState( SS_UP );      
     case SS_NUM_STATES:
     default:
-      Serial.printf("ERROR! BAD SUBSTATE In SubStateKeyUp! %d\r\n", Get_UI_SubState());
+      DEBUG_PRINTF("ERROR! BAD SUBSTATE In SubStateKeyUp! %d\r\n", Get_UI_SubState());
       Set_UI_State( S_PLAY );
       Set_UI_SubState( SS_UP );
       break;
@@ -1129,9 +1148,9 @@ void SubStateKeyUp(uint8_t key)
 void ReceiveKeyDown(uint8_t key )
 {
 
-  Serial.print("Key Down ");
-  Serial.print(key,DEC);
-  Serial.println(".");
+  DEBUG_APRINT("Key Down ");
+  DEBUG_APRINT(key,DEC);
+  DEBUG_APRINTLN(".");
   
   switch ( Get_UI_State() )
   {
@@ -1142,11 +1161,11 @@ void ReceiveKeyDown(uint8_t key )
       }
       else
       {
-        Serial.printf("Button down!\r\n");
+        DEBUG_PRINTF("Button down!\r\n");
         switch( key )
         {
           case PATCH_BUTTON:        
-          Serial.printf("Patch!\r\n");
+          DEBUG_PRINTF("Patch!\r\n");
             //last_patch_number = patch_number;   // save the patch number in case of abort
             //patch_number_changed = false;       // clear patch change flag
             current_mode_button = PATCH_BUTTON; // save button for comparison in substate code
@@ -1155,7 +1174,7 @@ void ReceiveKeyDown(uint8_t key )
             SaveUIValue();
             break;
           case WRITE_BUTTON: 
-            Serial.printf("Write!\r\n");
+            DEBUG_PRINTF("Write!\r\n");
             //last_patch_number = patch_number;   // save the patch number in case of abort
             current_mode_button = WRITE_BUTTON; // save button for comparison in substate code
             Set_UI_State( S_PATCH_WRITE );              // set state
@@ -1163,13 +1182,13 @@ void ReceiveKeyDown(uint8_t key )
             SaveUIValue();            
             break;
           case VALUE_BUTTON: 
-            Serial.printf("Value!\r\n");
+            DEBUG_PRINTF("Value!\r\n");
             current_mode_button = VALUE_BUTTON; // save button for comparison in substate code
             Set_UI_State( S_PARAMETER_SELECT );         // set state
             Set_UI_SubState( SS_SELECT_DOWN );          // set substate
             break;
           case MODE_BUTTON:
-            Serial.printf("Mode!\r\n");
+            DEBUG_PRINTF("Mode!\r\n");
             current_mode_button = MODE_BUTTON;  // save button for comparison in substate code
             Set_UI_State( S_MODE_CHANGE );              // set state
             Set_UI_SubState( SS_SELECT_DOWN );          // set substate
@@ -1202,9 +1221,9 @@ void ReceiveKeyDown(uint8_t key )
 
 void ReceiveKeyUp(uint8_t key )
 {
-  Serial.print("Key Up ");
-  Serial.print(key,DEC);
-  Serial.println(".");
+  DEBUG_APRINT("Key Up ");
+  DEBUG_APRINT(key,DEC);
+  DEBUG_APRINTLN(".");
   SubStateKeyUp(key);
   //SoundKeyUp();
 }
@@ -1250,10 +1269,15 @@ void updateControl(){
   lfo_amt/=256.0f;
     
   float lfo_pitch = lfo_to_pitch * (lfo_amt+ lfo_pitch_add);
-  
 
-  osc1_freq = mtof(float(last_key_played+note1_ofs+fine_freq1+lfo_pitch));
-  osc2_freq = mtof(float(last_key_played+note2_ofs+fine_freq2+lfo_pitch));
+  //sustain is note pitch for pitch env
+  float pitchenvmod = ((float)env - env_sustain_pitch_sub)/256.0f; 
+
+  float env_pitch1mod = (env_to_pitch1 * pitchenvmod);
+  float env_pitch2mod = (env_to_pitch2 * pitchenvmod);
+
+  osc1_freq = mtof(float(last_key_played+note1_ofs+fine_freq1+lfo_pitch+env_pitch1mod));
+  osc2_freq = mtof(float(last_key_played+note2_ofs+fine_freq2+lfo_pitch+env_pitch2mod));
   osc1.setFreq(osc1_freq);
   osc2.setFreq(osc2_freq);
 
@@ -1405,7 +1429,7 @@ void AnimSetStrip()
   for(int i=0; i< strip.numPixels(); i++) 
   {
     strip.setPixelColor((i+(NUM_LEDS/2))%NUM_LEDS, workPixels[i].r, workPixels[i].g, workPixels[i].b);
-    //Serial.printf("%d->%d,%d,%d\r\n",i, workPixels[i].r, workPixels[i].g, workPixels[i].b);
+    //DEBUG_PRINTF("%d->%d,%d,%d\r\n",i, workPixels[i].r, workPixels[i].g, workPixels[i].b);
   }
   strip.show();
 };
@@ -1426,7 +1450,7 @@ void AnimUpdate()
     
   if ((counter%SPEED_DIVIDE)==0)
   {
-    //Serial.printf("counter: %d DIVIDE %d FLASH %d %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE, flash);
+    //DEBUG_PRINTF("counter: %d DIVIDE %d FLASH %d %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE, flash);
     //AnimPixelsClear();
     //AnimPixelsFadeSub(16);
     AnimPixelsSpread(160);
@@ -1481,7 +1505,7 @@ void AnimUpdate()
     }
     else if ( flash==2)
     {
-    //Serial.printf("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
+    //DEBUG_PRINTF("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
       switch ( _state )
       {
         case S_PLAY:
@@ -1510,7 +1534,7 @@ void AnimUpdate()
     }
     else if ( flash==4)
     {
-    //Serial.printf("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
+    //DEBUG_PRINTF("counter: %d DIVIDE %d FLASH %d\r\n",counter, counter/SPEED_DIVIDE, counter/FLASH_SPEED_DIVIDE);
       switch ( _state )
       {
         case S_PLAY:
@@ -1549,23 +1573,23 @@ void loop()
   if ((counter%SPEED_DIVIDE)==0)
   {
     uint64_t small_counter = counter/SPEED_DIVIDE;
-    Serial.print(small_counter,DEC);
-    Serial.print(" ");
+    DEBUG_APRINT(small_counter,DEC);
+    DEBUG_APRINT(" ");
     uint32_t bits=GetStylusKeyBits();
     uint32_t bit = 1;
     for(int i=0;i<NUM_PINS+1;i++)
     {
       if ( bits & bit )
       {
-        Serial.print("#");
+        DEBUG_APRINT("#");
       }
       else
       {
-        Serial.print(".");
+        DEBUG_APRINT(".");
       }
       bit<<=1;
     }
-    Serial.println("\e[1;A");
+    DEBUG_APRINTLN("\e[1;A");
     AnimUpdate();
     
     //led strip test
