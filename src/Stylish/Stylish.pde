@@ -904,11 +904,11 @@ void SetUIValue(uint8_t value )
       break;
     case S_MODE_CHANGE:
       mode_parameter_number = value;
-      mode_value = ModeData[ mode_parameter_number ];
+      mode_value = ModeData[ mode_parameter_number ]/10;
       DEBUG_PRINTF("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
       break;
     case S_MODE_VALUE:
-      ModeData[ mode_parameter_number ] = value;
+      ModeData[ mode_parameter_number ] = MapValToByte(value,0,255);
       mode_value = value;
       DEBUG_PRINTF("SetUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
       break;
@@ -1299,6 +1299,7 @@ int updateAudio(){
 
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
+  ModeData[0]=224;
   Serial.begin(115200);  
   
 #ifdef WAIT_FOR_SERIAL  
@@ -1428,7 +1429,11 @@ void AnimSetStrip()
 {
   for(int i=0; i< strip.numPixels(); i++) 
   {
-    strip.setPixelColor((i+(NUM_LEDS/2))%NUM_LEDS, workPixels[i].r, workPixels[i].g, workPixels[i].b);
+    uint16_t LED_bright = 256-ModeData[0];
+    rgb_t cur_pixel = workPixels[i];
+    cur_pixel *= LED_bright;
+    
+    strip.setPixelColor((i+(NUM_LEDS/2))%NUM_LEDS, cur_pixel.r, cur_pixel.g, cur_pixel.b);
     //DEBUG_PRINTF("%d->%d,%d,%d\r\n",i, workPixels[i].r, workPixels[i].g, workPixels[i].b);
   }
   strip.show();
