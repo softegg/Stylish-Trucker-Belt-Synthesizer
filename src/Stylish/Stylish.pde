@@ -22,12 +22,12 @@ WS2812B strip = WS2812B(NUM_LEDS);
 
 #define FLASH_TOP (0x080020000)
 
-//#define DEBUG_PRINTF Serial.printf
-//#define DEBUG_APRINTLN Serial.println
-//#define DEBUG_APRINT Serial.print
-#define DEBUG_PRINTF( __xxx__, ...)
-#define DEBUG_APRINTLN( __xxx__, ...)
-#define DEBUG_APRINT( __xxx__, ...)
+#define DEBUG_PRINTF Serial.printf
+#define DEBUG_APRINTLN Serial.println
+#define DEBUG_APRINT Serial.print
+//#define DEBUG_PRINTF( __xxx__, ...)
+//#define DEBUG_APRINTLN( __xxx__, ...)
+//#define DEBUG_APRINT( __xxx__, ...)
 
 
 //#include "printf.h"
@@ -137,6 +137,14 @@ enum ePATCH_PARAMS
   PP_LFO_NOISE,   // amount of LFO to noise
   PP_BALANCE,     // relative volume of wave 1 to wave 2
   PP_NUM_PARAMETERS  
+};
+
+enum eMODE_PARAMS
+{
+  MP_LED_BRIGHT,
+  MP_COARSE_PITCH,
+  MP_FINE_PITCH,
+  MP_NUM_PARAMETERS
 };
 
 __attribute__ ((aligned (4))) uint8_t LocalPatchData[ NUM_PATCH_PARAMETERS ];
@@ -401,7 +409,12 @@ void ReadPatchesFromFlash()
   uint32_t * magic = (uint32_t *) MAGIC;
   uint32_t byte_count = (sizeof(patch_t)*NUM_PATCHES);
   DEBUG_PRINTF("ReadPatchesFromFlash: 0x%l08X -> 0x%l08x  (%d)\r\n",FlashAddress,internal_patch_data, byte_count);
-  if (( FlashAddress[byte_count/4]==magic[0]) && ( FlashAddress[(byte_count/4)+1]==magic[1]))
+  //IF first button held 
+  if (!digitalRead(PB10))
+  {
+    DEBUG_PRINTF("ALL PATCH RESET DETECTED\r\n");
+  }
+  else if (( FlashAddress[byte_count/4]==magic[0]) && ( FlashAddress[(byte_count/4)+1]==magic[1]))
   {
     DEBUG_PRINTF("MAGIC detected!\r\n");
   }
@@ -802,8 +815,8 @@ uint32_t GetStylusKeyBits()
 void SoundKeyDown(uint8_t key)
 {
   last_key_played = key;
-  osc1_freq = mtof(float(key+note1_ofs+fine_freq1));
-  osc2_freq = mtof(float(key+note2_ofs+fine_freq2));
+  osc1_freq = mtof(float(key+note1_ofs+fine_freq1+(ModeData[MP_COARSE_PITCH]-12))-1.0f+float(ModeData[MP_FINE_PITCH]-12)/12.0f);
+  osc2_freq = mtof(float(key+note2_ofs+fine_freq2+(ModeData[MP_COARSE_PITCH]-12))-1.0f+float(ModeData[MP_FINE_PITCH]-12)/12.0f);
   osc1.setFreq(osc1_freq);
   osc2.setFreq(osc2_freq);
   envelope.noteOn();
@@ -904,11 +917,25 @@ void SetUIValue(uint8_t value )
       break;
     case S_MODE_CHANGE:
       mode_parameter_number = value;
-      mode_value = ModeData[ mode_parameter_number ]/10;
+      if (( mode_parameter_number == MP_COARSE_PITCH) || ( mode_parameter_number == MP_FINE_PITCH))
+      {
+        mode_value = ModeData[ mode_parameter_number ];
+      }
+      else
+      {
+        mode_value = ModeData[ mode_parameter_number ]/10;
+      }
       DEBUG_PRINTF("SetUIValue: MODE_CHANGE mode_parameter_number = %d\r\n", mode_parameter_number);
       break;
     case S_MODE_VALUE:
-      ModeData[ mode_parameter_number ] = MapValToByte(value,0,255);
+      if (( mode_parameter_number == MP_COARSE_PITCH) || ( mode_parameter_number == MP_FINE_PITCH))
+      {
+        ModeData[ mode_parameter_number ] = value;
+      }
+      else
+      {
+        ModeData[ mode_parameter_number ] = MapValToByte(value,0,255);
+      }
       mode_value = value;
       DEBUG_PRINTF("SetUIValue: MODE_VALUE(%d)=%d\r\n", mode_parameter_number, ModeData[ mode_parameter_number ] );
       break;
@@ -1276,8 +1303,8 @@ void updateControl(){
   float env_pitch1mod = (env_to_pitch1 * pitchenvmod);
   float env_pitch2mod = (env_to_pitch2 * pitchenvmod);
 
-  osc1_freq = mtof(float(last_key_played+note1_ofs+fine_freq1+lfo_pitch+env_pitch1mod));
-  osc2_freq = mtof(float(last_key_played+note2_ofs+fine_freq2+lfo_pitch+env_pitch2mod));
+  osc1_freq = mtof(float(last_key_played+note1_ofs+fine_freq1+lfo_pitch+env_pitch1mod+(ModeData[MP_COARSE_PITCH]-12))-1.0f+float(ModeData[MP_FINE_PITCH]-12)/12.0f);
+  osc2_freq = mtof(float(last_key_played+note2_ofs+fine_freq2+lfo_pitch+env_pitch2mod+(ModeData[MP_COARSE_PITCH]-12))-1.0f+float(ModeData[MP_FINE_PITCH]-12)/12.0f);
   osc1.setFreq(osc1_freq);
   osc2.setFreq(osc2_freq);
 
@@ -1299,7 +1326,9 @@ int updateAudio(){
 
 void setup() {
   //Setup Serial at max baud rate and wait till terminal connects before starting output
-  ModeData[0]=224;
+  ModeData[MP_LED_BRIGHT]=224;
+  ModeData[MP_COARSE_PITCH] = 12;
+  ModeData[MP_FINE_PITCH] = 12;
   Serial.begin(115200);  
   
 #ifdef WAIT_FOR_SERIAL  
@@ -1320,11 +1349,11 @@ void setup() {
   osc1.setFreq(440); // set the frequency
   osc2.setFreq(440); // set the frequency
 
+  //Init Stylus keyboard library
+  StylusKeyboardSetup();
   ReadPatchesFromFlash();
   Patch[patch_number].GetAllToLocal();
   UpdateAllLocalPatchData();
-  //Init Stylus keyboard library
-  StylusKeyboardSetup();
   SetKeyDownCallback(&ReceiveKeyDown);
   SetKeyUpCallback(&ReceiveKeyUp);
   //init WS2812B strip
@@ -1429,7 +1458,7 @@ void AnimSetStrip()
 {
   for(int i=0; i< strip.numPixels(); i++) 
   {
-    uint16_t LED_bright = 256-ModeData[0];
+    uint16_t LED_bright = 256-ModeData[MP_LED_BRIGHT];
     rgb_t cur_pixel = workPixels[i];
     cur_pixel *= LED_bright;
     
