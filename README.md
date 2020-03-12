@@ -16,3 +16,4 @@ Amplifier is XH-M125 based on the XPT8871, which you an also buy cheaply from Al
 
 Speaker is 40-50mm 0.5W 8 Ohm
 
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
