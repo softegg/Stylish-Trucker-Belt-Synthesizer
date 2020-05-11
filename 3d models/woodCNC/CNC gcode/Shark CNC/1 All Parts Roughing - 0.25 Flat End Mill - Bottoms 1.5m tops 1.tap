@@ -20755,7 +20755,7 @@ G00  X0.0000  Y0.0000
 (----NEXT FILE---------------------------)
 G00  Z0.0000 
 ( 1 Bottom Inner - 0.25 Flat End Mill - 1.5 inch thick )
-( File created: Friday August 30 2019 - 07:09 PM)
+( File created: Thursday May 07 2020 - 03:59 PM)
 ( for CNC Shark from Vectric )
 ( Material Size)
 ( X= 25.400, Y= 20.000, Z= 1.500)
@@ -20781,6 +20781,7 @@ G00  Z0.0000
 (Bottom Inner - Speaker Hollow Level 2)
 (Bottom Inner - USB and headphone jaclk cutout)
 (Bottom Inner - Vent Cut)
+(Bottom Inner - Jumper Cutaway)
 (Bottom Inner - Speaker Hole final)
 (Bottom Inner - Outer Edge Cut)
 (Tool used in this file: )
@@ -44091,6 +44092,33 @@ G01 X19.9301 Y8.5547 Z1.0910
 G01 X19.9451 Y8.5529 Z1.0910
 F100.0
 G00 X19.9451 Y8.5529 Z1.8000
+(|---------------------------------------)
+(| Toolpath:- 'Bottom Inner - Jumper Cutaway'     )
+(|---------------------------------------)
+F100.0
+G00 X17.3168 Y5.1474 Z1.8000
+F100.0
+G00 X17.3168 Y5.1474 Z1.7000
+F30.0
+G1 X17.3168 Y5.1474 Z0.4220
+F100.0
+G01 X17.4882 Y5.1474 Z0.4220
+G01 X17.4882 Y5.3363 Z0.4220
+G01 X17.3168 Y5.3363 Z0.4220
+G01 X17.3168 Y5.1474 Z0.4220
+F100.0
+G00 X17.3168 Y5.1474 Z1.8000
+F100.0
+G00 X17.3168 Y5.1474 Z1.7000
+F30.0
+G1 X17.3168 Y5.1474 Z0.3040
+F100.0
+G01 X17.4882 Y5.1474 Z0.3040
+G01 X17.4882 Y5.3363 Z0.3040
+G01 X17.3168 Y5.3363 Z0.3040
+G01 X17.3168 Y5.1474 Z0.3040
+F100.0
+G00 X17.3168 Y5.1474 Z1.8000
 (|---------------------------------------)
 (| Toolpath:- 'Bottom Inner - Speaker Hole final'     )
 (|---------------------------------------)
