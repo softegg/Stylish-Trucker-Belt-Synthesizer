@@ -1,0 +1,91 @@
+EESchema-LIBRARY Version 2.4
+#encoding utf-8
+#
+# SoftEggKicadLib_XPT8871
+#
+DEF SoftEggKicadLib_XPT8871 U 0 40 Y Y 1 F N
+F0 "U" -50 450 60 H V C CNN
+F1 "SoftEggKicadLib_XPT8871" 0 200 60 H V C CNN
+F2 "" 0 -100 60 H I C CNN
+F3 "" 0 -100 60 H I C CNN
+DRAW
+S -400 400 400 -400 0 1 0 N
+X SD 1 -600 -300 200 R 50 50 1 1 I
+X BYP 2 -600 -100 200 R 50 50 1 1 I
+X MODE 3 -600 100 200 R 50 50 1 1 I
+X IN 4 -600 300 200 R 50 50 1 1 I
+X VON 5 600 -100 200 L 50 50 1 1 I
+X VDD 6 -100 -600 200 U 50 50 1 1 I
+X GND 7 200 -600 200 U 50 50 1 1 I
+X VOP 8 600 100 200 L 50 50 1 1 I
+ENDDRAW
+ENDDEF
+#
+# conn_Conn_01x06
+#
+DEF conn_Conn_01x06 J 0 40 Y N 1 F N
+F0 "J" 0 300 50 H V C CNN
+F1 "conn_Conn_01x06" 0 -400 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ Connector*:*_??x*mm*
+ Connector*:*1x??x*mm*
+ Pin?Header?Straight?1X*
+ Pin?Header?Angled?1X*
+ Socket?Strip?Straight?1X*
+ Socket?Strip?Angled?1X*
+$ENDFPLIST
+DRAW
+S -50 -295 0 -305 1 1 6 N
+S -50 -195 0 -205 1 1 6 N
+S -50 -95 0 -105 1 1 6 N
+S -50 5 0 -5 1 1 6 N
+S -50 105 0 95 1 1 6 N
+S -50 205 0 195 1 1 6 N
+S -50 250 50 -350 1 1 10 f
+X Pin_1 1 -200 200 150 R 50 50 1 1 P
+X Pin_2 2 -200 100 150 R 50 50 1 1 P
+X Pin_3 3 -200 0 150 R 50 50 1 1 P
+X Pin_4 4 -200 -100 150 R 50 50 1 1 P
+X Pin_5 5 -200 -200 150 R 50 50 1 1 P
+X Pin_6 6 -200 -300 150 R 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# device_C_Small
+#
+DEF device_C_Small C 0 10 N N 1 F N
+F0 "C" 10 70 50 H V L CNN
+F1 "device_C_Small" 10 -80 50 H V L CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ C_*
+$ENDFPLIST
+DRAW
+P 2 0 1 13 -60 -20 60 -20 N
+P 2 0 1 12 -60 20 60 20 N
+X ~ 1 0 100 80 D 50 50 1 1 P
+X ~ 2 0 -100 80 U 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+# device_R
+#
+DEF device_R R 0 0 N Y 1 F N
+F0 "R" 80 0 50 V V C CNN
+F1 "device_R" 0 0 50 V V C CNN
+F2 "" -70 0 50 V I C CNN
+F3 "" 0 0 50 H I C CNN
+$FPLIST
+ R_*
+$ENDFPLIST
+DRAW
+S -40 -100 40 100 0 1 10 N
+X ~ 1 0 150 50 D 50 50 1 1 P
+X ~ 2 0 -150 50 U 50 50 1 1 P
+ENDDRAW
+ENDDEF
+#
+#End Library
